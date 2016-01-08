@@ -96,7 +96,8 @@ int main(int /* argc */ , char** /* argv */ )
     
     const double t0 = 0.0;
     const double tf = 21.0;
-    const double dt = 0.01;
+    const double dt = 0.1;
+    const double observer_dt = 1.0;
 
     state_type x = x0;
     
@@ -183,8 +184,6 @@ int main(int /* argc */ , char** /* argv */ )
     std::cout<<" final: " << '\t' << x[0] << '\t' << x[1]<< std::endl;
 
 
-
-
     //[ define_adapt_stepper
     typedef runge_kutta_cash_karp54< state_type > error_stepper_type;
     //]
@@ -227,13 +226,33 @@ int main(int /* argc */ , char** /* argv */ )
                         ho , x , t0 , tf , dt2 );
     //]
 
+
+    x = x0;
+    x_vec.clear();
+    times.clear();
+
+    //[ equidistant observer calls with adaptive internal step size:
+    steps = integrate_const( controlled_stepper , ho , x , t0, tf, observer_dt, push_back_state_and_time( x_vec , times ) );
+
+
+    std::cout<< "const observer: "  << steps << " steps; final: " << '\t' << x[0] << '\t' << x[1]<< std::endl;
+    /* output */
+    for( size_t i=0; i<=steps; i++ )
+    {
+        cout << times[i] << '\t' << x_vec[i][0] << '\t' << x_vec[i][1] << '\n';
+    }
+    //]
+
+
+
+
     #ifdef BOOST_NUMERIC_ODEINT_CXX11
     //[ define_const_stepper_cpp11
     {
     runge_kutta4< state_type > stepper;
     integrate_const( stepper , []( const state_type &x , state_type &dxdt , double t ) {
             dxdt[0] = x[1]; dxdt[1] = -x[0] - gam*x[1]; }
-        , x , 0.0 , 10.0 , 0.01 );
+        , x , t0 , tf , dt2 );
     }
     //]
     
