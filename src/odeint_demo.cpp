@@ -184,6 +184,7 @@ int main(int /* argc */ , char** /* argv */ )
                         harmonic_oscillator , x , 0.0 , 10.0 , 0.01 );
     //]
 
+/*
     #ifdef BOOST_NUMERIC_ODEINT_CXX11
     //[ define_const_stepper_cpp11
     {
@@ -204,7 +205,7 @@ int main(int /* argc */ , char** /* argv */ )
     //]
     #endif
     
-    
+    */
 
 
 }
