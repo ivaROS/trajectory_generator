@@ -93,13 +93,16 @@ int main(int /* argc */ , char** /* argv */ )
     x0[0] = 0.0; // start at x=1.0, p=0.0
     x0[1] = 0.0;
     //]
-
+    
+    const double t0 = 0.0;
+    const double tf = 20.0;
+    const double dt = 0.01;
 
     state_type x = x0;
     
     //[ integration
     size_t steps = integrate( harmonic_oscillator ,
-            x , 0.0 , 20.0 , 0.1 );
+            x , t0, tf, dt );
     //]
 
     std::cout<< "Basic version: " << steps << " steps; final: " << '\t' << x[0] << '\t' << x[1]<< std::endl;
@@ -109,7 +112,7 @@ int main(int /* argc */ , char** /* argv */ )
     //[ integration_class
     harm_osc ho(1,.1);
     steps = integrate( ho ,
-            x , 0.0 , 20.0 , 0.1 );
+            x , t0, tf, dt);
     //]
 
     std::cout<< "Class version: "  << steps << " steps; final: " << '\t' << x[0] << '\t' << x[1]<< std::endl;
@@ -123,10 +126,10 @@ int main(int /* argc */ , char** /* argv */ )
     vector<double> times;
 
     steps = integrate( harmonic_oscillator ,
-            x , 0.0 , 20.0 , 0.1 ,
+            x , t0, tf, dt ,
             push_back_state_and_time( x_vec , times ) );
 
-    std::cout<< "func observe: "  << steps << " steps; final: " << '\t' << x[0] << '\t' << x[1]<< std::endl;
+    std::cout<< "func observe:  "  << steps << " steps; final: " << '\t' << x[0] << '\t' << x[1]<< std::endl;
 
     /* output */
     for( size_t i=0; i<=steps; i++ )
@@ -138,7 +141,7 @@ int main(int /* argc */ , char** /* argv */ )
     x = x0;
 
     steps = integrate( ho ,
-            x , 0.0 , 20.0 , 0.1 ,
+            x , t0, tf, dt ,
             push_back_state_and_time( x_vec , times ) );
 
     std::cout<< "class observe: "  << steps << " steps; final: " << '\t' << x[0] << '\t' << x[1]<< std::endl;
@@ -157,25 +160,25 @@ int main(int /* argc */ , char** /* argv */ )
 
     //[ define_const_stepper
     runge_kutta4< state_type > stepper;
-    steps = integrate_const( stepper , harmonic_oscillator , x , 0.0 , 20.0 , 0.01 );
+    steps = integrate_const( stepper , harmonic_oscillator , x , t0, tf, dt );
     //]
 
-    std::cout<< "const stepper"  << steps << " steps; final: " << '\t' << x[0] << '\t' << x[1]<< std::endl;
+    std::cout<< "const stepper: "  << steps << " steps; final: " << '\t' << x[0] << '\t' << x[1]<< std::endl;
 
     x = x0;
     
-    std::cout<< "const stepper loop:" << std::endl;
+    std::cout<< "const stepper loop: \t" ;
     //[ integrate_const_loop
-    const double dt = 0.01;
-    for( double t=0.0 ; t<20.0 ; t+= dt )
+    const double dt2 = 0.01;
+    for( double t=t0 ; t<tf ; t+= dt2 )
     {
-        stepper.do_step( harmonic_oscillator , x , t , dt );
+        stepper.do_step( harmonic_oscillator , x , t , dt2 );
     //    cout << t << '\t' << x[0] << '\t' << x[1] << '\n';
     }
         
     //]
 
-    std::cout<<"final: " << '\t' << x[0] << '\t' << x[1]<< std::endl;
+    std::cout<<" final: " << '\t' << x[0] << '\t' << x[1]<< std::endl;
 
 
 
@@ -189,8 +192,9 @@ int main(int /* argc */ , char** /* argv */ )
     //[ integrate_adapt
     typedef controlled_runge_kutta< error_stepper_type > controlled_stepper_type;
     controlled_stepper_type controlled_stepper;
-    integrate_adaptive( controlled_stepper , harmonic_oscillator , x , 0.0 , 20.0 , 0.01 );
+    steps = integrate_adaptive( controlled_stepper , harmonic_oscillator , x , t0, tf, dt2 );
     //]
+    std::cout<<"adaptive: " << steps << " steps; \t final: " << '\t' << x[0] << '\t' << x[1]<< std::endl;
 
     x = x0;
     {
@@ -198,25 +202,25 @@ int main(int /* argc */ , char** /* argv */ )
     double abs_err = 1.0e-10 , rel_err = 1.0e-6 , a_x = 1.0 , a_dxdt = 1.0;
     controlled_stepper_type controlled_stepper( 
         default_error_checker< double , range_algebra , default_operations >( abs_err , rel_err , a_x , a_dxdt ) );
-    integrate_adaptive( controlled_stepper , harmonic_oscillator , x , 0.0 , 20.0 , 0.01 );
+    steps = integrate_adaptive( controlled_stepper , harmonic_oscillator , x , t0, tf, dt2 );
     //]
     }
-    std::cout<< "adaptive version"  << std::endl;
+    std::cout<<"adaptive full: " << steps << " steps; final: " << '\t' << x[0] << '\t' << x[1]<< std::endl;
 
 
     x = x0;
     //[integrate_adapt_make_controlled
     integrate_adaptive( make_controlled< error_stepper_type >( 1.0e-10 , 1.0e-6 ) , 
-                        harmonic_oscillator , x , 0.0 , 10.0 , 0.01 );
+                        harmonic_oscillator , x , t0, tf, dt2 );
     //]
 
-    std::cout<< "controlled version"  << std::endl;
+    std::cout<<"controlled: " << steps << " steps; \t final: " << '\t' << x[0] << '\t' << x[1]<< std::endl;
 
 
     x = x0;
     //[integrate_adapt_make_controlled_alternative
     integrate_adaptive( make_controlled( 1.0e-10 , 1.0e-6 , error_stepper_type() ) , 
-                        harmonic_oscillator , x , 0.0 , 10.0 , 0.01 );
+                        harmonic_oscillator , x , t0 , tf , dt2 );
     //]
 
     #ifdef BOOST_NUMERIC_ODEINT_CXX11
