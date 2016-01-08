@@ -8,7 +8,7 @@ find_package(catkin REQUIRED)
 
 ## System dependencies are found with CMake's conventions
 find_package(Boost REQUIRED COMPONENTS system)
-
+find_package(Eigen3 REQUIRED)
 
 ## Uncomment this if the package has a setup.py. This macro ensures
 ## modules and global scripts declared therein get installed
@@ -76,10 +76,17 @@ find_package(Boost REQUIRED COMPONENTS system)
 ## CATKIN_DEPENDS: catkin_packages dependent projects also need
 ## DEPENDS: system dependencies of this project that dependent projects also need
 catkin_package(
-  INCLUDE_DIRS include
+#  INCLUDE_DIRS include
 #  LIBRARIES trajectory_generator
 #  CATKIN_DEPENDS other_catkin_pkg
 #  DEPENDS system_lib
+)
+
+include_directories(
+  include
+  ${catkin_INCLUDE_DIRS}
+  ${EIGEN3_INCLUDE_DIR}
+  ${PROJECT_SOURCE_DIR}
 )
 
 ###########
@@ -98,7 +105,7 @@ catkin_package(
 ## Declare a cpp executable
 add_executable(odeint_demo src/odeint_demo.cpp)
 add_executable(odeint_basic src/odeint_basic.cpp)
-add_executable(odeint_basic src/odeint_controller.hpp)
+add_executable(odeint_controller src/odeint_controller.cpp )
 
 ## Add cmake target dependencies of the executable/library
 ## as an example, message headers may need to be generated before nodes
@@ -115,6 +122,7 @@ target_link_libraries(odeint_basic
  
  target_link_libraries(odeint_controller
    ${catkin_LIBRARIES}
+     ${EIGEN3_LIBS}
  )
 
 
