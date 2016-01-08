@@ -105,6 +105,7 @@ include_directories(
 ## Declare a cpp executable
 add_executable(odeint_demo src/odeint_demo.cpp)
 add_executable(odeint_basic src/odeint_basic.cpp)
+add_executable(odeint_observer src/odeint_observer.cpp)
 #add_executable(odeint_controller src/odeint_controller.cpp )
 
 ## Add cmake target dependencies of the executable/library
@@ -117,6 +118,10 @@ target_link_libraries(odeint_demo
  )
  
 target_link_libraries(odeint_basic
+   ${catkin_LIBRARIES}
+ )
+ 
+target_link_libraries(odeint_observer
    ${catkin_LIBRARIES}
  )
  
