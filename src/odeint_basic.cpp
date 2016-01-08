@@ -89,21 +89,22 @@ int main(int /* argc */ , char** /* argv */ )
 
 
     //[ state_initialization
-    state_type x(2);
-    x[0] = 0.0; // start at x=1.0, p=0.0
-    x[1] = 0.0;
+    state_type x0(2);
+    x0[0] = 0.0; // start at x=1.0, p=0.0
+    x0[1] = 0.0;
     //]
 
 
-
+    state_type x = x0;
+    
     //[ integration
     size_t steps = integrate( harmonic_oscillator ,
             x , 0.0 , 20.0 , 0.1 );
     //]
 
-    std::cout<< "Basic version: " << steps << " steps" << std::endl;
+    std::cout<< "Basic version: " << steps << " steps; final: " << '\t' << x[0] << '\t' << x[1]<< std::endl;
 
-
+    x = x0;
 
     //[ integration_class
     harm_osc ho(1,.1);
@@ -111,11 +112,12 @@ int main(int /* argc */ , char** /* argv */ )
             x , 0.0 , 20.0 , 0.1 );
     //]
 
-    std::cout<< "Class version"  << steps << " steps" << std::endl;
+    std::cout<< "Class version: "  << steps << " steps; final: " << '\t' << x[0] << '\t' << x[1]<< std::endl;
 
+  
 
-
-
+    x = x0;
+    
     //[ integrate_observ
     vector<state_type> x_vec;
     vector<double> times;
@@ -124,36 +126,56 @@ int main(int /* argc */ , char** /* argv */ )
             x , 0.0 , 20.0 , 0.1 ,
             push_back_state_and_time( x_vec , times ) );
 
-    std::cout<< "Class with observations"  << steps << " steps" << std::endl;
+    std::cout<< "func observe: "  << steps << " steps; final: " << '\t' << x[0] << '\t' << x[1]<< std::endl;
 
     /* output */
     for( size_t i=0; i<=steps; i++ )
     {
-        cout << times[i] << '\t' << x_vec[i][0] << '\t' << x_vec[i][1] << '\n';
+    //    cout << times[i] << '\t' << x_vec[i][0] << '\t' << x_vec[i][1] << '\n';
+    }
+    //]
+
+    x = x0;
+
+    steps = integrate( ho ,
+            x , 0.0 , 20.0 , 0.1 ,
+            push_back_state_and_time( x_vec , times ) );
+
+    std::cout<< "class observe: "  << steps << " steps; final: " << '\t' << x[0] << '\t' << x[1]<< std::endl;
+
+    /* output */
+    for( size_t i=0; i<=steps; i++ )
+    {
+    //    cout << times[i] << '\t' << x_vec[i][0] << '\t' << x_vec[i][1] << '\n';
     }
     //]
 
 
 
 
-
-
+    x = x0;
 
     //[ define_const_stepper
     runge_kutta4< state_type > stepper;
-    integrate_const( stepper , harmonic_oscillator , x , 0.0 , 20.0 , 0.01 );
+    steps = integrate_const( stepper , harmonic_oscillator , x , 0.0 , 20.0 , 0.01 );
     //]
 
-    std::cout<< "const stepper"  << steps << " steps" << std::endl;
+    std::cout<< "const stepper"  << steps << " steps; final: " << '\t' << x[0] << '\t' << x[1]<< std::endl;
 
-
+    x = x0;
+    
+    std::cout<< "const stepper loop:" << std::endl;
     //[ integrate_const_loop
     const double dt = 0.01;
     for( double t=0.0 ; t<20.0 ; t+= dt )
+    {
         stepper.do_step( harmonic_oscillator , x , t , dt );
+    //    cout << t << '\t' << x[0] << '\t' << x[1] << '\n';
+    }
+        
     //]
 
-    std::cout<< "const stepper"  << steps << " steps" << std::endl;
+    std::cout<<"final: " << '\t' << x[0] << '\t' << x[1]<< std::endl;
 
 
 
@@ -162,7 +184,7 @@ int main(int /* argc */ , char** /* argv */ )
     typedef runge_kutta_cash_karp54< state_type > error_stepper_type;
     //]
 
-
+    x = x0;
 
     //[ integrate_adapt
     typedef controlled_runge_kutta< error_stepper_type > controlled_stepper_type;
@@ -170,6 +192,7 @@ int main(int /* argc */ , char** /* argv */ )
     integrate_adaptive( controlled_stepper , harmonic_oscillator , x , 0.0 , 20.0 , 0.01 );
     //]
 
+    x = x0;
     {
     //[integrate_adapt_full
     double abs_err = 1.0e-10 , rel_err = 1.0e-6 , a_x = 1.0 , a_dxdt = 1.0;
@@ -181,7 +204,7 @@ int main(int /* argc */ , char** /* argv */ )
     std::cout<< "adaptive version"  << std::endl;
 
 
-
+    x = x0;
     //[integrate_adapt_make_controlled
     integrate_adaptive( make_controlled< error_stepper_type >( 1.0e-10 , 1.0e-6 ) , 
                         harmonic_oscillator , x , 0.0 , 10.0 , 0.01 );
@@ -190,7 +213,7 @@ int main(int /* argc */ , char** /* argv */ )
     std::cout<< "controlled version"  << std::endl;
 
 
-
+    x = x0;
     //[integrate_adapt_make_controlled_alternative
     integrate_adaptive( make_controlled( 1.0e-10 , 1.0e-6 , error_stepper_type() ) , 
                         harmonic_oscillator , x , 0.0 , 10.0 , 0.01 );
