@@ -1,5 +1,7 @@
 #include <Eigen/Dense>
 
+typedef std::vector< double > state_type;
+
 class near_identity {
 
     double c_p_;
@@ -21,6 +23,19 @@ public:
         double lambda = state(5);
 
 
+        /*Compute desired characteristics of path for this time
+        x_d = f_t(t);
+        x_d_dot = f_dot_t(t);
+        */
+
+        double x_d = state(6);
+        double y_d = state(7);
+        double x_d_dot = state_dot(6);
+        double y_d_dot = state_dot(7);
+
+        Eigen::Vector2d xy_d << x_d, y_d;
+        Eigen::Vector2d xy_d_dot << x_d_dot, y_d_dot;
+
         //Compute rotation matrices R, R_lambda, R_lambda_inv
         Eigen::Matrix2d R <<  cos(theta), -sin(theta), 
                               sin(theta), cos(theta);
@@ -37,26 +52,22 @@ public:
         Eigen::Matrix2d w_hat << 0, -lambda*w, (1.0/lambda)*w, lambda_dot/lambda;
 
         //q = xy + lambda*R*e1;
-        Vector2d q << x + lambda*R.at(0,0), y + lambda*R.at(1,0);
+        Eigen::Vector2d q << x + lambda*R.at(0,0), y + lambda*R.at(1,0);
 
         //p = R_lambda*v + lambda_dot*R_lambda*e1;
-        Vector2d p << v + lambda_dot*R_lambda.at(0,0), w + lambda_dot*R_lambda.at(1,0);
+        Eigen::Vector2d p << v + lambda_dot*R_lambda.at(0,0), w + lambda_dot*R_lambda.at(1,0);
 
-        /*Compute desired characteristics of path for this time
-        x_d = f_t(t);
-        x_d_dot = f_dot_t(t);
-        x_d_dot_dot = f_dot_dot_t(t);
-        */
+        
         
         
         
         //u can be any expression that will feedback stabilize a linear system
-        //here, using 2nd order feedback controller
-        Vector2d u = -c_p_*(q - x_d) - c_d_*(p - x_d_dot) + x_d_dot_dot;
+        //here, using 2nd order feedback controller   ; + x_d_dot_dot
+        Eigen::Vector2d u = -c_p_*(q - x_d) - c_d_*(p - x_d_dot);
 
 
         //Now find tau
-        Vector2d tau = R_lambda_inv*u - w_hat*v - lambda_dot*(w_hat - c_lambda*eye(n))*e1;
+        Eigen::Vector2d tau = R_lambda_inv*u - w_hat*v - lambda_dot*(w_hat - c_lambda*eye(n))*e1;
 
 
         //Now find derivatives of state variables
