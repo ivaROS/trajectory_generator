@@ -89,6 +89,10 @@ include_directories(
   ${PROJECT_SOURCE_DIR}
 )
 
+
+set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS}  -Wall  -O3 -march=native ")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall  -O3 -march=native -std=c++11")
+
 ###########
 ## Build ##
 ###########
@@ -106,7 +110,7 @@ include_directories(
 add_executable(odeint_demo src/odeint_demo.cpp)
 add_executable(odeint_basic src/odeint_basic.cpp)
 add_executable(odeint_observer src/odeint_observer.cpp)
-#add_executable(odeint_controller src/odeint_controller.cpp )
+add_executable(odeint_controller src/odeint_controller.cpp )
 
 ## Add cmake target dependencies of the executable/library
 ## as an example, message headers may need to be generated before nodes
@@ -125,10 +129,10 @@ target_link_libraries(odeint_observer
    ${catkin_LIBRARIES}
  )
  
-# target_link_libraries(odeint_controller
-#   ${catkin_LIBRARIES}
-#     ${EIGEN3_LIBS}
-# )
+ target_link_libraries(odeint_controller
+   ${catkin_LIBRARIES}
+     ${EIGEN3_LIBS}
+ )
 
 
 #############
