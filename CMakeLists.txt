@@ -110,6 +110,7 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall  -O3 -march=native -std=c++11")
 add_executable(odeint_demo src/odeint_demo.cpp)
 add_executable(odeint_basic src/odeint_basic.cpp)
 add_executable(odeint_observer src/odeint_observer.cpp)
+add_executable(near_identity_test src/near_identity_test.cpp )
 add_executable(odeint_controller src/odeint_controller.cpp )
 
 ## Add cmake target dependencies of the executable/library
