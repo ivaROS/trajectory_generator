@@ -21,19 +21,18 @@
 
 //[ rhs_class
 /* The rhs of x' = f(x) defined as a class */
-class traj_gen : public virtual traj_func{
+class sample_traj_func : public virtual traj_func{
 
     double m_amp;
     double m_f;
 
 public:
-    traj_gen( double amp, double f ) : m_amp(amp), m_f(f) { }
+    sample_traj_func( double amp, double f ) : m_amp(amp), m_f(f) { }
 
-    void operator() ( const state_type &x , state_type &dxdt , const double  t  )
+    void dState ( const state_type &x , state_type &dxdt , const double  t  )
     {
         dxdt[6] = 1;
         dxdt[7] = std::sin(t*2.0*3.14*m_f) * m_amp;
-        std::cout << "hi";
     }
 };
 //]
@@ -46,20 +45,20 @@ public:
 class ni_controller {
 
     near_identity ni_;
-    traj_func traj_;
+    traj_func* traj_;
     
 
 public:
     ni_controller( near_identity ni) :  ni_(ni) { }
 
-    void setTrajFunc(traj_func traj)
+    void setTrajFunc(traj_func* traj)
     {
       traj_ = traj;
     }
 
     void operator() ( const state_type &x , state_type &dxdt , const double  t  )
     {
-        traj_(x,dxdt,t);
+        traj_->dState(x,dxdt,t);
         ni_(x,dxdt,t);
     }
 };
@@ -111,7 +110,7 @@ void traj_generator::setIntegratorParams(double abs_err, double rel_err, double 
 }
 
 
-void traj_generator::setFunc(traj_func func)
+void traj_generator::setFunc(traj_func* func)
 {
   trajectory_func_ = func;
 }
@@ -186,11 +185,11 @@ int main(int /* argc */ , char** /* argv */ )
     //double abs_err_ = 1.0e-10 , rel_err_ = 1.0e-6 , a_x_ = 1.0 , a_dxdt_ = 1.0;
     
     traj_generator trajectory_gen;
-    traj_gen traj(0.15,.1);
+    sample_traj_func traj(0.15,.1);
     
     traj_func* trajpntr = &traj;
     
-    trajectory_gen.setFunc(*trajpntr);
+    trajectory_gen.setFunc(trajpntr);
     
     
     

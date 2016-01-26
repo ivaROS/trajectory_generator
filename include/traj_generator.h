@@ -7,6 +7,9 @@
  copy at http://www.boost.org/LICENSE_1_0.txt)
  */
 
+#ifndef TRAJ_GENERATOR_H
+#define TRAJ_GENERATOR_H
+     
 
 
 #include <vector>
@@ -24,7 +27,7 @@ class traj_func {
 
 public:
 
-    virtual void operator() ( const state_type &x , state_type &dxdt , const double  t  );
+    virtual void dState ( const state_type &x , state_type &dxdt , const double  t  )=0;
 };
 //]
 
@@ -36,7 +39,7 @@ class traj_generator {
   
   traj_generator();
   
-  void setFunc(traj_func func);
+  void setFunc(traj_func* func);
   
   size_t run(state_type &x0,  std::vector<state_type> &x_vec, std::vector<double> &times);
   
@@ -50,7 +53,7 @@ class traj_generator {
   
   double t0_, tf_, dt_;
   
-  traj_func trajectory_func_;
+  traj_func* trajectory_func_;
   
   std::vector<state_type> x_vec;
   std::vector<double> times;
@@ -58,3 +61,4 @@ class traj_generator {
 };
 
 
+#endif  /* ! traj_generator.h seen */
