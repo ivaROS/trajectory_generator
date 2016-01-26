@@ -112,6 +112,7 @@ add_executable(odeint_basic src/odeint_basic.cpp)
 add_executable(odeint_observer src/odeint_observer.cpp)
 add_executable(near_identity_test src/near_identity_test.cpp )
 add_executable(odeint_controller src/odeint_controller.cpp )
+add_executable(traj_generator src/traj_generator.cpp )
 
 ## Add cmake target dependencies of the executable/library
 ## as an example, message headers may need to be generated before nodes
@@ -131,6 +132,11 @@ target_link_libraries(odeint_observer
  )
  
  target_link_libraries(odeint_controller
+   ${catkin_LIBRARIES}
+     ${EIGEN3_LIBS}
+ )
+ 
+ target_link_libraries(traj_generator
    ${catkin_LIBRARIES}
      ${EIGEN3_LIBS}
  )
