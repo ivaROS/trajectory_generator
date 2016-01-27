@@ -41,9 +41,13 @@ class traj_generator {
   
   void setFunc(traj_func* func);
   
-  size_t run(state_type &x0,  std::vector<state_type> &x_vec, std::vector<double> &times);
+  std::size_t run(state_type &x0,  std::vector<state_type> &x_vec, std::vector<double> &times);
   
-  void setIntegratorParams(double abs_err_, double rel_err_, double a_x_, double a_dxdt_);
+  std::size_t run(state_type &x0,  std::vector<state_type> &x_vec, std::vector<double> &times, double t0, double tf, double dt, double cp, double cd, double cl, double eps);
+  
+  void setIntegratorParams(double abs_err, double rel_err, double a_x, double a_dxdt);
+  
+  void setNIParams(double cp, double cd, double cl, double eps);
   
   private:
   
@@ -52,6 +56,7 @@ class traj_generator {
   double abs_err_, rel_err_, a_x_, a_dxdt_;
   
   double t0_, tf_, dt_;
+  double cp_, cd_, cl_, eps_;
   
   traj_func* trajectory_func_;
   

@@ -4,11 +4,30 @@ project(trajectory_generator)
 ## Find catkin macros and libraries
 ## if COMPONENTS list like find_package(catkin REQUIRED COMPONENTS xyz)
 ## is used, also find other catkin packages
-find_package(catkin REQUIRED)
+find_package(catkin REQUIRED COMPONENTS roscpp
+                                        std_msgs
+                                        nav_msgs                                              
+                                        message_generation
+                                        geometry_msgs )
 
 ## System dependencies are found with CMake's conventions
 find_package(Boost REQUIRED COMPONENTS system)
 find_package(Eigen3 REQUIRED)
+
+
+
+
+add_message_files(
+  FILES
+  trajectory_point.msg
+  trajectory_points.msg
+)
+
+generate_messages(
+   DEPENDENCIES
+   std_msgs
+)
+
 
 ## Uncomment this if the package has a setup.py. This macro ensures
 ## modules and global scripts declared therein get installed
@@ -76,9 +95,9 @@ find_package(Eigen3 REQUIRED)
 ## CATKIN_DEPENDS: catkin_packages dependent projects also need
 ## DEPENDS: system dependencies of this project that dependent projects also need
 catkin_package(
-#  INCLUDE_DIRS include
-#  LIBRARIES trajectory_generator
-#  CATKIN_DEPENDS other_catkin_pkg
+  INCLUDE_DIRS include
+  LIBRARIES traj_generator trajectory_generator_ros_interface
+  CATKIN_DEPENDS  message_runtime
 #  DEPENDS system_lib
 )
 
@@ -112,7 +131,9 @@ add_executable(odeint_basic src/odeint_basic.cpp)
 add_executable(odeint_observer src/odeint_observer.cpp)
 add_executable(near_identity_test src/near_identity_test.cpp )
 add_executable(odeint_controller src/odeint_controller.cpp )
-add_executable(traj_generator src/traj_generator.cpp )
+add_library(traj_generator src/traj_generator.cpp )
+add_executable(test_traj_generator src/test_traj_generator.cpp)
+add_library(trajectory_generator_ros_interface src/trajectory_generator_ros_interface.cpp )
 
 ## Add cmake target dependencies of the executable/library
 ## as an example, message headers may need to be generated before nodes
@@ -139,6 +160,18 @@ target_link_libraries(odeint_observer
  target_link_libraries(traj_generator
    ${catkin_LIBRARIES}
      ${EIGEN3_LIBS}
+ )
+ 
+  target_link_libraries(test_traj_generator
+   ${catkin_LIBRARIES}
+     ${EIGEN3_LIBS}
+     traj_generator
+ )
+ 
+  target_link_libraries(trajectory_generator_ros_interface
+   ${catkin_LIBRARIES}
+     ${EIGEN3_LIBS}
+    traj_generator
  )
 
 
