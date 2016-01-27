@@ -1,10 +1,12 @@
 #include "traj_generator.h"
 #include <chrono>
-#include <turtlebot_trajectory_controller/trajectory_point.h>
-#include <turtlebot_trajectory_controller/trajectory_points.h>
+#include <trajectory_generator/trajectory_point.h>
+#include <trajectory_generator/trajectory_points.h>
 #include <ros/ros.h>
 #include <nav_msgs/Odometry.h>
 
+#ifndef TRAJECTORY_GENERATOR_ROS_INTERFACE_H
+#define TRAJECTORY_GENERATOR_ROS_INTERFACE_H
 
 class TrajectoryGeneratorBridge
 {
@@ -18,19 +20,16 @@ public:
 
 TrajectoryGeneratorBridge();
 
-void generate_trajectory(const nav_msgs::Odometry& curr_odom, traj_func* trajpntr);
+std::vector<trajectory_generator::trajectory_point> generate_trajectory(const nav_msgs::OdometryPtr curr_odom, traj_func* trajpntr);
 
-void initFromOdom(const nav_msgs::Odometry& curr_odom, state_type& x0);
-
-
+void initFromOdom(const nav_msgs::OdometryPtr curr_odom, state_type& x0);
 
 
 
-std::vector<turtlebot_trajectory_controller::trajectory_point> TrajectoryFromStates(std::vector<state_type> x_vec, std::vector<double> times);
 
-
-
-const nav_msgs::Odometry OdomFromState(state_type& state, double t, std_msgs::Header header);
+const nav_msgs::OdometryPtr OdomFromState(state_type& state, double t, std_msgs::Header header);
 
 };
+
+#endif
 
