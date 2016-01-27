@@ -17,7 +17,7 @@ struct ni_trajectory
     std::vector<trajectory_generator::trajectory_point> toTrajectoryMsg ()
     {
         std::vector<trajectory_generator::trajectory_point> trajectory;
-        for(int i = 0; i < x_vec.size(); i++)
+        for(size_t i = 0; i < x_vec.size(); i++)
         {
             trajectory_generator::trajectory_point point;
             point.time = ros::Duration(times[i]);
@@ -79,9 +79,11 @@ std::vector<trajectory_generator::trajectory_point> TrajectoryGeneratorBridge::g
 
     ni_trajectory traj(x_vec, times);
     
-    std::vector<trajectory_generator::trajectory_point> msg = traj.toTrajectoryMsg ();
+    std::vector<trajectory_generator::trajectory_point> traj_msgs = traj.toTrajectoryMsg ();
     
-    std::cout << msg[0] << std::endl;
+    std::cout << traj_msgs[0] << std::endl;
+    
+    return traj_msgs;
 }
 
 void TrajectoryGeneratorBridge::initFromOdom(const nav_msgs::OdometryPtr curr_odom, state_type& x0)

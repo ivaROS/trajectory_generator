@@ -26,8 +26,13 @@ typedef std::vector< double > state_type;
 class traj_func {
 
 public:
-
+    void init ( const state_type &x0 )
+    {
+    }
+    
     virtual void dState ( const state_type &x , state_type &dxdt , const double  t  )=0;
+    
+
 };
 //]
 

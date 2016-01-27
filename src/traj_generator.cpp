@@ -136,7 +136,8 @@ using namespace boost::numeric::odeint;
     times.clear();
     
     near_identity ni(cp,cd,cl,eps);
-
+    
+    trajectory_func_->init(x0);
     
     ni_controller controller(ni);
     controller.setTrajFunc(trajectory_func_);
