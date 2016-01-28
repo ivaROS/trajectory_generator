@@ -10,6 +10,8 @@ find_package(catkin REQUIRED COMPONENTS roscpp
                                         message_generation
                                         geometry_msgs )
 
+##Add attempt to use system boost; if doesn't have odeint, then use package
+find_package(odeint)
 ## System dependencies are found with CMake's conventions
 find_package(Boost REQUIRED COMPONENTS system)
 find_package(Eigen3 REQUIRED)
@@ -107,6 +109,7 @@ include_directories(
   ${EIGEN3_INCLUDE_DIR}
   ${PROJECT_SOURCE_DIR}
 )
+
 
 set(CMAKE_C_COMPILER "${CMAKE_C_COMPILER} gcc-4.8)
 set(CMAKE_CXX_COMPILER "${CMAKE_CXX_COMPILER} g++-4.8)
