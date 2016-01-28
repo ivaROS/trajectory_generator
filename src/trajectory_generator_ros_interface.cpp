@@ -32,6 +32,16 @@ struct ni_trajectory
         return trajectory;
     }
     
+/*    static nav_msgs::Path getPath(trajectory_generator::trajectory_points traj_msg)
+    {
+        nav_msgs::Path
+    
+    geometry_msgs::Quaternion quat;
+    quat.w = cos(theta/2);
+    quat.z = sin(theta/2);
+    
+    }
+    */
 };
 
 
