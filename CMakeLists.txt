@@ -8,10 +8,10 @@ find_package(catkin REQUIRED COMPONENTS roscpp
                                         std_msgs
                                         nav_msgs                                              
                                         message_generation
-                                        geometry_msgs )
+                                        geometry_msgs odeint)
 
-##Add attempt to use system boost; if doesn't have odeint, then use package
-find_package(odeint)
+
+
 ## System dependencies are found with CMake's conventions
 find_package(Boost REQUIRED COMPONENTS system)
 find_package(Eigen3 REQUIRED)

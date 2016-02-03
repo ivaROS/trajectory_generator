@@ -6,15 +6,8 @@
 #include <iostream>
 #include "trajectory_generator_ros_interface.h"
 
-struct ni_trajectory
-{
-    std::vector<state_type>& x_vec;
-    std::vector<double>& times;
-    
-    ni_trajectory( std::vector< state_type > &states , std::vector< double > &t )
-    : x_vec( states ) , times( t ) { }
 
-    std::vector<trajectory_generator::trajectory_point> toTrajectoryMsg ()
+    std::vector<trajectory_generator::trajectory_point> ni_trajectory::toTrajectoryMsg ()
     {
         std::vector<trajectory_generator::trajectory_point> trajectory;
         for(size_t i = 0; i < x_vec.size(); i++)
@@ -42,7 +35,7 @@ struct ni_trajectory
     
     }
     */
-};
+
 
 
 TrajectoryGeneratorBridge::TrajectoryGeneratorBridge()

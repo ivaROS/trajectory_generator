@@ -8,6 +8,16 @@
 #ifndef TRAJECTORY_GENERATOR_ROS_INTERFACE_H
 #define TRAJECTORY_GENERATOR_ROS_INTERFACE_H
 
+struct ni_trajectory
+{
+    std::vector<state_type>& x_vec;
+    std::vector<double>& times;
+
+    ni_trajectory( std::vector< state_type > &states , std::vector< double > &t ) : x_vec( states ) , times( t ) { }
+
+    std::vector<trajectory_generator::trajectory_point> toTrajectoryMsg ();
+};
+
 class TrajectoryGeneratorBridge
 {
 
