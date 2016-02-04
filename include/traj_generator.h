@@ -19,6 +19,14 @@
 //[ rhs_function
 /* The type of container used to hold the state vector */
 typedef std::vector< double > state_type;
+#define X_IND 0
+#define Y_IND 1
+#define THETA_IND 2
+#define V_IND 3
+#define W_IND 4
+#define LAMBDA_IND 5
+#define XD_IND 6
+#define YD_IND 7
 
 
 //[ rhs_class
@@ -47,7 +55,7 @@ class traj_generator {
   void setFunc(traj_func* func);
   
   std::size_t run(state_type &x0,  std::vector<state_type> &x_vec, std::vector<double> &times);
-  
+  std::size_t run(state_type &x0, std::vector<state_type> &x_vec, std::vector<double> &times, double t0, double tf);
   std::size_t run(state_type &x0,  std::vector<state_type> &x_vec, std::vector<double> &times, double t0, double tf, double dt, double cp, double cd, double cl, double eps);
   
   void setIntegratorParams(double abs_err, double rel_err, double a_x, double a_dxdt);

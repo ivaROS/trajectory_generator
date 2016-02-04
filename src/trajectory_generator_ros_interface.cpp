@@ -51,18 +51,27 @@
         }
     }
     
-    
-/*    static nav_msgs::Path getPath(trajectory_generator::trajectory_points traj_msg)
+    /*
+    nav_msgs::Path getPath()
     {
-        nav_msgs::Path
-    
-    geometry_msgs::Quaternion quat;
-    quat.w = cos(theta/2);
-    quat.z = sin(theta/2);
+        nav_msgs::Path path_msg;
+        
+        for(int i=0; i<x_vec.size(); i++)
+        
+            geometry_msgs::PoseStamped pose_msg;
+            
+            
+            geometry_msgs::Quaternion quat;
+            quat.w = cos(theta/2);
+            quat.z = sin(theta/2);
+            
+            pose_msg.pose.position = pos;
+            pose_msg.pose.orientation = quat;
+
     
     }
-    */
-
+    
+*/
 
 
 TrajectoryGeneratorBridge::TrajectoryGeneratorBridge()

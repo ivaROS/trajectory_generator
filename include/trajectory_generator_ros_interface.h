@@ -9,6 +9,8 @@
 #ifndef TRAJECTORY_GENERATOR_ROS_INTERFACE_H
 #define TRAJECTORY_GENERATOR_ROS_INTERFACE_H
 
+
+
 struct ni_trajectory
 {
 

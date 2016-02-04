@@ -118,7 +118,12 @@ size_t traj_generator::run(state_type &x0, std::vector<state_type> &x_vec, std::
 {
     return traj_generator::run(x0, x_vec, times, t0_, tf_, dt_, cp_, cd_, cl_, eps_);
 }
-  
+
+size_t traj_generator::run(state_type &x0, std::vector<state_type> &x_vec, std::vector<double> &times, double t0, double tf)
+{
+    return traj_generator::run(x0, x_vec, times, t0, tf, dt_, cp_, cd_, cl_, eps_);
+}
+
 size_t traj_generator::run(state_type &x0, std::vector<state_type> &x_vec, std::vector<double> &times, double t0, double tf, double dt, double cp, double cd, double cl, double eps)
 {
 using namespace boost::numeric::odeint;
