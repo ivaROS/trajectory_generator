@@ -11,6 +11,7 @@
 
 struct ni_trajectory
 {
+
     std::vector<state_type> x_vec;
     std::vector<double> times;
     //std::string frame;  //Note sure whether to include Frame at this level
@@ -20,6 +21,7 @@ struct ni_trajectory
     trajectory_generator::trajectory_points toTrajectoryMsg ();
     std::vector<trajectory_generator::trajectory_point> toTrajectoryPointMsgs();
     void printTrajectory();
+
 };
 
 class TrajectoryGeneratorBridge

@@ -7,6 +7,7 @@
 #include "trajectory_generator_ros_interface.h"
 
 
+
     std::vector<trajectory_generator::trajectory_point> ni_trajectory::toTrajectoryPointMsgs()
     {
         std::vector<trajectory_generator::trajectory_point> trajectory;
