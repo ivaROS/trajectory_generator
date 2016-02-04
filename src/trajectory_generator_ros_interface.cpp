@@ -7,7 +7,7 @@
 #include "trajectory_generator_ros_interface.h"
 
 
-    std::vector<trajectory_generator::trajectory_point> ni_trajectory::toTrajectoryMsg ()
+    std::vector<trajectory_generator::trajectory_point> ni_trajectory::toTrajectoryPointMsgs()
     {
         std::vector<trajectory_generator::trajectory_point> trajectory;
         for(size_t i = 0; i < x_vec.size(); i++)
@@ -21,9 +21,35 @@
             point.w = x_vec[i][4];
             trajectory.push_back(point);
         }
-        
         return trajectory;
     }
+    
+    
+    trajectory_generator::trajectory_points ni_trajectory::toTrajectoryMsg ()
+    {
+        //ni_trajectory::printTrajectory();
+        std::vector<trajectory_generator::trajectory_point> points = ni_trajectory::toTrajectoryPointMsgs();
+    
+        trajectory_generator::trajectory_points trajectory_msg;
+        trajectory_msg.points = points;
+        
+        return trajectory_msg;
+    }
+    
+    void ni_trajectory::printTrajectory()
+    {
+        std::cout << "Time" << '\t' << "Error" << '\t' << 'x' << '\t' << 'y' << '\t' << "theta" << '\t' << 'v' << '\t' << 'w' << '\t' << "lambda" << '\t' << 'x' << '\t' << 'y' << std::endl;
+    
+        for( size_t i=0; i<x_vec.size(); i++ )
+        {
+            double error_x = x_vec[i][0] - x_vec[i][6];
+            double error_y = x_vec[i][1] - x_vec[i][7];
+            
+            double error = sqrt(error_x*error_x + error_y*error_y);
+            printf("%.4f\t%.4f\t%.4f\t%.4f\t%.4f\t%.4f\t%.4f\t%.4f\t%.4f\t%.4f\n", times[i], error, x_vec[i][0], x_vec[i][1], x_vec[i][2], x_vec[i][3], x_vec[i][4], x_vec[i][5], x_vec[i][6], x_vec[i][7]);
+        }
+    }
+    
     
 /*    static nav_msgs::Path getPath(trajectory_generator::trajectory_points traj_msg)
     {
@@ -46,7 +72,7 @@ TrajectoryGeneratorBridge::TrajectoryGeneratorBridge()
     robot_radius_ = .15;
 }
 
-std::vector<trajectory_generator::trajectory_point> TrajectoryGeneratorBridge::generate_trajectory(const nav_msgs::OdometryPtr curr_odom, traj_func* trajpntr)
+ni_trajectory TrajectoryGeneratorBridge::generate_trajectory(const nav_msgs::OdometryPtr curr_odom, traj_func* trajpntr)
 {
     state_type x0(8);
     TrajectoryGeneratorBridge::initFromOdom(curr_odom, x0);
@@ -54,8 +80,28 @@ std::vector<trajectory_generator::trajectory_point> TrajectoryGeneratorBridge::g
 
     trajectory_gen.setFunc(trajpntr);
     
+    return TrajectoryGeneratorBridge::run(trajpntr, x0);
+}
     
     
+ni_trajectory TrajectoryGeneratorBridge::generate_trajectory(const geometry_msgs::TransformStampedPtr curr_tf, traj_func* trajpntr)
+{
+    state_type x0(8);
+    TrajectoryGeneratorBridge::initFromTF(curr_tf, x0);
+
+
+    trajectory_gen.setFunc(trajpntr);
+    
+    return TrajectoryGeneratorBridge::run(trajpntr, x0);
+}
+
+    
+    
+
+ni_trajectory TrajectoryGeneratorBridge::run(traj_func* trajpntr, state_type& x0)
+{
+
+    trajectory_gen.setFunc(trajpntr);
     //[ Observer samples
     std::vector<state_type> x_vec;
     std::vector<double> times;
@@ -82,12 +128,42 @@ std::vector<trajectory_generator::trajectory_point> TrajectoryGeneratorBridge::g
 
     ni_trajectory traj(x_vec, times);
     
-    std::vector<trajectory_generator::trajectory_point> traj_msgs = traj.toTrajectoryMsg ();
+    //std::cout << traj_msgs[0] << std::endl;
     
-    std::cout << traj_msgs[0] << std::endl;
-    
-    return traj_msgs;
+    return traj;
 }
+
+void TrajectoryGeneratorBridge::initFromTF(const geometry_msgs::TransformStampedPtr curr_tf, state_type& x0)
+{
+    double x = curr_tf->transform.translation.x;
+    double y = curr_tf->transform.translation.y;
+    double theta = 2* std::acos(curr_tf->transform.rotation.w);
+    double vx = 0;
+    double vy = 0;
+    double v = 0; 
+    double w = 0;
+
+
+//The following is an option
+/*// the incoming geometry_msgs::Quaternion is transformed to a tf::Quaterion
+    tf::Quaternion quat;
+    tf::quaternionMsgToTF(msg, quat);
+
+    // the tf::Quaternion has a method to acess roll pitch and yaw
+    double roll, pitch, yaw;
+    tf::Matrix3x3(quat).getRPY(roll, pitch, yaw);
+    */
+
+    x0[0] = x;      //x
+    x0[1] = y;      //y
+    x0[2] = theta;  //theta
+    x0[3] = v;      //v
+    x0[4] = w;      //w
+    x0[5] = robot_radius_;    //lambda: must be > 0!
+    x0[6] = x;    //x_d
+    x0[7] = y;    //y_d
+}
+
 
 void TrajectoryGeneratorBridge::initFromOdom(const nav_msgs::OdometryPtr curr_odom, state_type& x0)
 {

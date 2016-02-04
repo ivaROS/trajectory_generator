@@ -50,8 +50,9 @@ public:
 
 
 //[ integrate_observer
-struct push_back_state_and_time
+class push_back_state_and_time
 {
+    public:
     std::vector< state_type >& m_states;
     std::vector< double >& m_times;
 
