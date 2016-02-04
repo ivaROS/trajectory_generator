@@ -15,11 +15,11 @@
         {
             trajectory_generator::trajectory_point point;
             point.time = ros::Duration(times[i]);
-            point.x = x_vec[i][0];
-            point.y = x_vec[i][1];
-            point.theta = x_vec[i][2];
-            point.v = x_vec[i][3];
-            point.w = x_vec[i][4];
+            point.x = x_vec[i][X_IND];
+            point.y = x_vec[i][Y_IND];
+            point.theta = x_vec[i][THETA_IND];
+            point.v = x_vec[i][V_IND];
+            point.w = x_vec[i][W_IND];
             trajectory.push_back(point);
         }
         return trajectory;
@@ -43,8 +43,8 @@
     
         for( size_t i=0; i<x_vec.size(); i++ )
         {
-            double error_x = x_vec[i][0] - x_vec[i][6];
-            double error_y = x_vec[i][1] - x_vec[i][7];
+            double error_x = x_vec[i][X_IND] - x_vec[i][XD_IND];
+            double error_y = x_vec[i][Y_IND] - x_vec[i][YD_IND];
             
             double error = sqrt(error_x*error_x + error_y*error_y);
             printf("%.4f\t%.4f\t%.4f\t%.4f\t%.4f\t%.4f\t%.4f\t%.4f\t%.4f\t%.4f\n", times[i], error, x_vec[i][0], x_vec[i][1], x_vec[i][2], x_vec[i][3], x_vec[i][4], x_vec[i][5], x_vec[i][6], x_vec[i][7]);
@@ -164,14 +164,14 @@ void TrajectoryGeneratorBridge::initFromTF(const geometry_msgs::TransformStamped
     tf::Matrix3x3(quat).getRPY(roll, pitch, yaw);
     */
 
-    x0[0] = x;      //x
-    x0[1] = y;      //y
-    x0[2] = theta;  //theta
-    x0[3] = v;      //v
-    x0[4] = w;      //w
-    x0[5] = robot_radius_;    //lambda: must be > 0!
-    x0[6] = x;    //x_d
-    x0[7] = y;    //y_d
+    x0[X_IND] = x;      //x
+    x0[Y_IND] = y;      //y
+    x0[THETA_IND] = theta;  //theta
+    x0[V_IND] = v;      //v
+    x0[W_IND] = w;      //w
+    x0[LAMBDA_IND] = robot_radius_;    //lambda: must be > 0!
+    x0[XD_IND] = x;    //x_d
+    x0[YD_IND] = y;    //y_d
 }
 
 
@@ -196,14 +196,14 @@ void TrajectoryGeneratorBridge::initFromOdom(const nav_msgs::OdometryPtr curr_od
     tf::Matrix3x3(quat).getRPY(roll, pitch, yaw);
     */
 
-    x0[0] = x;      //x
-    x0[1] = y;      //y
-    x0[2] = theta;  //theta
-    x0[3] = v;      //v
-    x0[4] = w;      //w
-    x0[5] = robot_radius_;    //lambda: must be > 0!
-    x0[6] = x;    //x_d
-    x0[7] = y;    //y_d
+    x0[X_IND] = x;      //x
+    x0[Y_IND] = y;      //y
+    x0[THETA_IND] = theta;  //theta
+    x0[V_IND] = v;      //v
+    x0[W_IND] = w;      //w
+    x0[LAMBDA_IND] = robot_radius_;    //lambda: must be > 0!
+    x0[XD_IND] = x;    //x_d
+    x0[YD_IND] = y;    //y_d
 }
 
 
@@ -219,11 +219,11 @@ const nav_msgs::OdometryPtr TrajectoryGeneratorBridge::OdomFromState(state_type&
 {
     nav_msgs::OdometryPtr odom;
     
-    double x = state[0];      //x
-    double y = state[1];      //y
-    double theta = state[2];  //theta
-    double v = state[3];      //v
-    double w = state[4];      //w
+    double x = state[X_IND];      //x
+    double y = state[Y_IND];      //y
+    double theta = state[THETA_IND];  //theta
+    double v = state[V_IND];      //v
+    double w = state[W_IND];      //w
     
     double vx = v*std::cos(theta);
     double vy = v*std::sin(theta);

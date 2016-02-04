@@ -10,7 +10,7 @@
 #ifndef TRAJ_GENERATOR_H
 #define TRAJ_GENERATOR_H
      
-
+#include "near_identity.h"
 
 #include <vector>
 
@@ -18,15 +18,8 @@
 
 //[ rhs_function
 /* The type of container used to hold the state vector */
-typedef std::vector< double > state_type;
-#define X_IND 0
-#define Y_IND 1
-#define THETA_IND 2
-#define V_IND 3
-#define W_IND 4
-#define LAMBDA_IND 5
-#define XD_IND 6
-#define YD_IND 7
+//typedef std::vector< double > state_type;
+
 
 
 //[ rhs_class

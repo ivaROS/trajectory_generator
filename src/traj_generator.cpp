@@ -12,7 +12,7 @@
 #include <vector>
 
 #include <boost/numeric/odeint.hpp>
-#include "near_identity.h"
+
 #include "traj_generator.h"
 #include <chrono>
 
