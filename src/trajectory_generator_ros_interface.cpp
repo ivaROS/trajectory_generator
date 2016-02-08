@@ -1,7 +1,6 @@
-#include "traj_generator.h"
 #include <chrono>
 #include <ros/ros.h>
-#include <nav_msgs/Odometry.h>
+
 
 #include <iostream>
 #include "trajectory_generator_ros_interface.h"
@@ -51,27 +50,32 @@
         }
     }
     
-    /*
-    nav_msgs::Path getPath()
+    
+    nav_msgs::Path ni_trajectory::toPathMsg()
     {
         nav_msgs::Path path_msg;
+        path_msg.header.frame_id = frame_id;
         
         for(int i=0; i<x_vec.size(); i++)
-        
-            geometry_msgs::PoseStamped pose_msg;
+        {
+            state_type state = x_vec[i];
+            geometry_msgs::PoseStamped pose;
+            pose.header.frame_id = frame_id;
             
-            
-            geometry_msgs::Quaternion quat;
-            quat.w = cos(theta/2);
-            quat.z = sin(theta/2);
-            
-            pose_msg.pose.position = pos;
-            pose_msg.pose.orientation = quat;
+            pose.pose.position.x = state[X_IND];
+            pose.pose.position.y = state[Y_IND];
 
-    
+            double theta = state[THETA_IND];
+            pose.pose.orientation.w = cos(theta/2);
+            pose.pose.orientation.z = sin(theta/2);
+
+            path_msg.poses.push_back(pose);
+        }
+        
+        return path_msg;
     }
     
-*/
+
 
 
 TrajectoryGeneratorBridge::TrajectoryGeneratorBridge()
@@ -90,7 +94,9 @@ ni_trajectory TrajectoryGeneratorBridge::generate_trajectory(const nav_msgs::Odo
 
     trajectory_gen.setFunc(trajpntr);
     
-    return TrajectoryGeneratorBridge::run(trajpntr, x0);
+    ni_trajectory traj = TrajectoryGeneratorBridge::run(trajpntr, x0);
+    traj.frame_id = curr_odom->header.frame_id;
+    return traj;
 }
     
     
@@ -102,7 +108,9 @@ ni_trajectory TrajectoryGeneratorBridge::generate_trajectory(const geometry_msgs
 
     trajectory_gen.setFunc(trajpntr);
     
-    return TrajectoryGeneratorBridge::run(trajpntr, x0);
+    ni_trajectory traj = TrajectoryGeneratorBridge::run(trajpntr, x0);
+    traj.frame_id = curr_tf->child_frame_id;
+    return traj;
 }
 
     

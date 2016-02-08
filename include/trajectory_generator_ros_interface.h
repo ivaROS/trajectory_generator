@@ -4,6 +4,7 @@
 #include <trajectory_generator/trajectory_points.h>
 #include <ros/ros.h>
 #include <nav_msgs/Odometry.h>
+#include <nav_msgs/Path.h>
 #include <geometry_msgs/TransformStamped.h>
 
 #ifndef TRAJECTORY_GENERATOR_ROS_INTERFACE_H
@@ -16,12 +17,13 @@ struct ni_trajectory
 
     std::vector<state_type> x_vec;
     std::vector<double> times;
-    //std::string frame;  //Note sure whether to include Frame at this level
+    std::string frame_id;  //Note sure whether to include Frame at this level
 
     ni_trajectory( std::vector< state_type > states , std::vector< double > t ) : x_vec( states ) , times( t ) { }
 
     trajectory_generator::trajectory_points toTrajectoryMsg ();
     std::vector<trajectory_generator::trajectory_point> toTrajectoryPointMsgs();
+    nav_msgs::Path toPathMsg();
     void printTrajectory();
 
 };
