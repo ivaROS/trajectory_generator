@@ -1,6 +1,7 @@
 #include <chrono>
 #include <ros/ros.h>
 
+#include <tf/transform_datatypes.h>
 
 #include <iostream>
 #include "trajectory_generator_ros_interface.h"
@@ -193,16 +194,14 @@ void TrajectoryGeneratorBridge::initFromOdom(const nav_msgs::OdometryPtr curr_od
     double v = std::sqrt((vx*vx) + (vy*vy)); 
     double w = curr_odom->twist.twist.angular.z;
 
-
-//The following is an option
-/*// the incoming geometry_msgs::Quaternion is transformed to a tf::Quaterion
+// the incoming geometry_msgs::Quaternion is transformed to a tf::Quaterion
     tf::Quaternion quat;
-    tf::quaternionMsgToTF(msg, quat);
+    tf::quaternionMsgToTF(curr_odom->pose.pose.orientation, quat);
 
     // the tf::Quaternion has a method to acess roll pitch and yaw
     double roll, pitch, yaw;
-    tf::Matrix3x3(quat).getRPY(roll, pitch, yaw);
-    */
+    tf::Matrix3x3(quat).getRPY(roll, pitch, theta);
+    
 
     x0[X_IND] = x;      //x
     x0[Y_IND] = y;      //y
