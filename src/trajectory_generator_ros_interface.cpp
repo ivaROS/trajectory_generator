@@ -184,24 +184,40 @@ void TrajectoryGeneratorBridge::initFromTF(const geometry_msgs::TransformStamped
 }
 
 
+geometry_msgs::Quaternion TrajectoryGeneratorBridge::yawToQuaternion(double yaw)
+{
+    double roll = 0;
+    double pitch = 0;
+    return tf::createQuaternionMsgFromRollPitchYaw(roll, pitch, yaw);
+}
+
+double TrajectoryGeneratorBridge::quaternionToYaw(geometry_msgs::Quaternion& quaternion)
+{
+    // the incoming geometry_msgs::Quaternion is transformed to a tf::Quaterion
+    tf::Quaternion quat;
+    tf::quaternionMsgToTF(quaternion, quat);
+
+    // the tf::Quaternion has a method to acess roll pitch and yaw
+    double roll, pitch, yaw;
+    tf::Matrix3x3(quat).getRPY(roll, pitch, yaw);
+    
+    return yaw;
+}
+
 void TrajectoryGeneratorBridge::initFromOdom(const nav_msgs::OdometryPtr curr_odom, state_type& x0)
 {
     double x = curr_odom->pose.pose.position.x;
     double y = curr_odom->pose.pose.position.y;
-    double theta = 2* std::acos(curr_odom->pose.pose.orientation.w);
+    double theta = TrajectoryGeneratorBridge::quaternionToYaw(curr_odom->pose.pose.orientation);
     double vx = curr_odom->twist.twist.linear.x;
     double vy = curr_odom->twist.twist.linear.y;
     double v = std::sqrt((vx*vx) + (vy*vy)); 
     double w = curr_odom->twist.twist.angular.z;
 
-// the incoming geometry_msgs::Quaternion is transformed to a tf::Quaterion
-    tf::Quaternion quat;
-    tf::quaternionMsgToTF(curr_odom->pose.pose.orientation, quat);
+    geometry_msgs::Quaternion newquat = TrajectoryGeneratorBridge::yawToQuaternion(theta);
 
-    // the tf::Quaternion has a method to acess roll pitch and yaw
-    double roll, pitch, yaw;
-    tf::Matrix3x3(quat).getRPY(roll, pitch, theta);
-    
+    std::cout << "Odom quaternion: w=" << curr_odom->pose.pose.orientation.w << ", z=" << curr_odom->pose.pose.orientation.z << "; Theta from quat: " << theta << "; quat from theta: w=" << newquat.w << ", z=" << newquat.z << std::endl;
+
 
     x0[X_IND] = x;      //x
     x0[Y_IND] = y;      //y
