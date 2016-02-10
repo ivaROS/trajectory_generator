@@ -77,7 +77,7 @@ traj_generator::traj_generator()
  a_dxdt_ = 1.0;
    
   t0_ = 0.0;
-  tf_ = 21.0;
+  tf_ = 5.0;
   dt_ = .1;
   
   cp_ = 100;
