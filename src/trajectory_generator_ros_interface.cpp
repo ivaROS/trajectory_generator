@@ -156,7 +156,7 @@ void TrajectoryGeneratorBridge::initFromTF(const geometry_msgs::TransformStamped
 {
     double x = curr_tf->transform.translation.x;
     double y = curr_tf->transform.translation.y;
-    double theta = 2* std::acos(curr_tf->transform.rotation.w);
+    double theta = TrajectoryGeneratorBridge::quaternionToYaw(curr_tf->transform.rotation);
     double vx = 0;
     double vy = 0;
     double v = 0; 
