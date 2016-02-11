@@ -87,6 +87,12 @@ traj_generator::traj_generator()
  
 }
 
+void traj_generator::setTimeParams(double t0, double tf, double dt)
+{
+  t0_ = t0;
+  tf_ = tf;
+  dt_ = dt;
+}
 
 void traj_generator::setNIParams(double cp, double cd, double cl, double eps)
 {

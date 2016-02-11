@@ -41,7 +41,7 @@ public:
 
 TrajectoryGeneratorBridge();
 
-
+void updateParams();
 
 ni_trajectory generate_trajectory(const nav_msgs::OdometryPtr curr_odom, traj_func* trajpntr);
 ni_trajectory generate_trajectory(const geometry_msgs::TransformStampedPtr curr_tf, traj_func* trajpntr);

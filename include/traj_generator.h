@@ -57,6 +57,8 @@ class traj_generator {
   
   void setNIParams(double cp, double cd, double cl, double eps);
   
+  void setTimeParams(double t0, double tf, double dt);
+  
   private:
   
   //ni_controller controller_;

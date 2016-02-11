@@ -114,12 +114,10 @@ ni_trajectory TrajectoryGeneratorBridge::generate_trajectory(const geometry_msgs
     return traj;
 }
 
-    
-    
 
 ni_trajectory TrajectoryGeneratorBridge::run(traj_func* trajpntr, state_type& x0)
 {
-
+    TrajectoryGeneratorBridge::updateParams();
     trajectory_gen.setFunc(trajpntr);
     //[ Observer samples
     std::vector<state_type> x_vec;
@@ -150,6 +148,23 @@ ni_trajectory TrajectoryGeneratorBridge::run(traj_func* trajpntr, state_type& x0
     //std::cout << traj_msgs[0] << std::endl;
     
     return traj;
+}
+
+void TrajectoryGeneratorBridge::updateParams()
+{
+    double t0 = 0;
+    double tf = 10;
+    double dt = .1;
+    
+    std::string key;
+    
+    if(ros::param::search("tf", key))
+    {
+        ros::param::get(key, tf); 
+    }
+    
+    trajectory_gen.setTimeParams(t0, tf, dt);
+
 }
 
 void TrajectoryGeneratorBridge::initFromTF(const geometry_msgs::TransformStampedPtr curr_tf, state_type& x0)
