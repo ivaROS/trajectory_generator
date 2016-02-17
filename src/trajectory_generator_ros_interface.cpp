@@ -76,6 +76,20 @@
         return path_msg;
     }
     
+    size_t ni_trajectory::num_states()
+    {
+        return x_vec.size();
+    }
+    
+    geometry_msgs::Vector3 ni_trajectory::getPoint(int i)
+    {
+        state_type state = x_vec[i];
+        geometry_msgs::Vector3 vec;
+        vec.x = state[X_IND];
+        vec.y = state[Y_IND];
+        return vec;
+    }
+    
 
 
 
@@ -101,7 +115,7 @@ ni_trajectory TrajectoryGeneratorBridge::generate_trajectory(const nav_msgs::Odo
 }
     
     
-ni_trajectory TrajectoryGeneratorBridge::generate_trajectory(const geometry_msgs::TransformStampedPtr curr_tf, traj_func* trajpntr)
+ni_trajectory TrajectoryGeneratorBridge::generate_trajectory( geometry_msgs::TransformStamped& curr_tf, traj_func* trajpntr)
 {
     state_type x0(8);
     TrajectoryGeneratorBridge::initFromTF(curr_tf, x0);
@@ -110,9 +124,16 @@ ni_trajectory TrajectoryGeneratorBridge::generate_trajectory(const geometry_msgs
     trajectory_gen.setFunc(trajpntr);
     
     ni_trajectory traj = TrajectoryGeneratorBridge::run(trajpntr, x0);
-    traj.frame_id = curr_tf->child_frame_id;
+    traj.frame_id = curr_tf.child_frame_id;
     return traj;
 }
+/*
+ni_trajectory TrajectoryGeneratorBridge::generate_trajectory(geometry_msgs::TransformStamped curr_tf, traj_func* trajpntr)
+{
+    const geometry_msgs::TransformStampedPtr curr_tfPtr = geometry_msgs::TransformStampedPtr(new geometry_msgs::TransformStamped(curr_tf));
+    return TrajectoryGeneratorBridge::generate_trajectory(curr_tfPtr, trajpntr);
+}
+*/
 
 
 ni_trajectory TrajectoryGeneratorBridge::run(traj_func* trajpntr, state_type& x0)
@@ -167,11 +188,11 @@ void TrajectoryGeneratorBridge::updateParams()
 
 }
 
-void TrajectoryGeneratorBridge::initFromTF(const geometry_msgs::TransformStampedPtr curr_tf, state_type& x0)
+void TrajectoryGeneratorBridge::initFromTF( geometry_msgs::TransformStamped& curr_tf, state_type& x0)
 {
-    double x = curr_tf->transform.translation.x;
-    double y = curr_tf->transform.translation.y;
-    double theta = TrajectoryGeneratorBridge::quaternionToYaw(curr_tf->transform.rotation);
+    double x = curr_tf.transform.translation.x;
+    double y = curr_tf.transform.translation.y;
+    double theta = TrajectoryGeneratorBridge::quaternionToYaw(curr_tf.transform.rotation);
     double vx = 0;
     double vy = 0;
     double v = 0; 
