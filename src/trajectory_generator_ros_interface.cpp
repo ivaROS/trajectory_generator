@@ -6,7 +6,7 @@
 #include <iostream>
 #include "trajectory_generator_ros_interface.h"
 
-
+#define DEBUG false
 
     std::vector<trajectory_generator::trajectory_point> ni_trajectory::toTrajectoryPointMsgs()
     {
@@ -138,7 +138,7 @@ ni_trajectory TrajectoryGeneratorBridge::generate_trajectory(geometry_msgs::Tran
 
 ni_trajectory TrajectoryGeneratorBridge::run(traj_func* trajpntr, state_type& x0)
 {
-    ROS_DEBUG_STREAM("Initial State: " << x0[X_IND] << " " <<
+    if(DEBUG)ROS_DEBUG_STREAM("Initial State: " << x0[X_IND] << " " <<
     x0[Y_IND] << " " <<
     x0[THETA_IND]<< " " <<
     x0[V_IND]<< " " <<
@@ -167,11 +167,11 @@ ni_trajectory TrajectoryGeneratorBridge::run(traj_func* trajpntr, state_type& x0
     //Stop the clock before all of the printouts
     auto t2 = std::chrono::high_resolution_clock::now();
     std::chrono::duration<double, std::milli> fp_ms = t2 - t1;
-    ROS_DEBUG_STREAM("Integration took " << fp_ms.count() << " ms\n");
+    if(DEBUG)ROS_DEBUG_STREAM("Integration took " << fp_ms.count() << " ms\n");
 
 
 
-    ROS_DEBUG_STREAM("const observer: "  << steps << " steps. final: " << '\t' << x0[0] << '\t' << x0[1]<< std::endl);
+    if(DEBUG)ROS_DEBUG_STREAM("const observer: "  << steps << " steps. final: " << '\t' << x0[0] << '\t' << x0[1]<< std::endl);
 
     ni_trajectory traj(x_vec, times);
     //traj.print();
@@ -272,7 +272,7 @@ void TrajectoryGeneratorBridge::initFromOdom(const nav_msgs::OdometryPtr curr_od
 
     geometry_msgs::Quaternion newquat = TrajectoryGeneratorBridge::yawToQuaternion(theta);
 
-    std::cout << "Odom quaternion: w=" << curr_odom->pose.pose.orientation.w << ", z=" << curr_odom->pose.pose.orientation.z << "; Theta from quat: " << theta << "; quat from theta: w=" << newquat.w << ", z=" << newquat.z << std::endl;
+    if(DEBUG)std::cout << "Odom quaternion: w=" << curr_odom->pose.pose.orientation.w << ", z=" << curr_odom->pose.pose.orientation.z << "; Theta from quat: " << theta << "; quat from theta: w=" << newquat.w << ", z=" << newquat.z << std::endl;
 
 
     x0[X_IND] = x;      //x
