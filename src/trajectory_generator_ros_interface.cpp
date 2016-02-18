@@ -37,9 +37,9 @@
         return trajectory_msg;
     }
     
-    void ni_trajectory::printTrajectory()
+    void ni_trajectory::print()
     {
-        std::cout << "Time" << '\t' << "Error" << '\t' << 'x' << '\t' << 'y' << '\t' << "theta" << '\t' << 'v' << '\t' << 'w' << '\t' << "lambda" << '\t' << 'x' << '\t' << 'y' << std::endl;
+        std::cout << "Time" << '\t' << "Error" << '\t' << 'x' << '\t' << 'y' << '\t' << "theta" << '\t' << 'v' << '\t' << 'w' << '\t' << "lambda" << '\t' << "xd" << '\t' << "yd" << std::endl;
     
         for( size_t i=0; i<x_vec.size(); i++ )
         {
@@ -52,10 +52,10 @@
     }
     
     
-    nav_msgs::Path ni_trajectory::toPathMsg()
+    nav_msgs::PathPtr ni_trajectory::toPathMsg()
     {
-        nav_msgs::Path path_msg;
-        path_msg.header.frame_id = frame_id;
+        nav_msgs::PathPtr path_msg(new nav_msgs::Path);
+        path_msg->header.frame_id = frame_id;
         
         for(int i=0; i<x_vec.size(); i++)
         {
@@ -70,7 +70,7 @@
             pose.pose.orientation.w = cos(theta/2);
             pose.pose.orientation.z = sin(theta/2);
 
-            path_msg.poses.push_back(pose);
+            path_msg->poses.push_back(pose);
         }
         
         return path_msg;
@@ -124,7 +124,7 @@ ni_trajectory TrajectoryGeneratorBridge::generate_trajectory( geometry_msgs::Tra
     trajectory_gen.setFunc(trajpntr);
     
     ni_trajectory traj = TrajectoryGeneratorBridge::run(trajpntr, x0);
-    traj.frame_id = curr_tf.child_frame_id;
+    traj.frame_id = curr_tf.header.frame_id;
     return traj;
 }
 /*
@@ -138,6 +138,15 @@ ni_trajectory TrajectoryGeneratorBridge::generate_trajectory(geometry_msgs::Tran
 
 ni_trajectory TrajectoryGeneratorBridge::run(traj_func* trajpntr, state_type& x0)
 {
+    ROS_DEBUG_STREAM("Initial State: " << x0[X_IND] << " " <<
+    x0[Y_IND] << " " <<
+    x0[THETA_IND]<< " " <<
+    x0[V_IND]<< " " <<
+    x0[W_IND]<< " " <<
+    x0[LAMBDA_IND] << " " <<
+    x0[XD_IND] << " " <<
+    x0[YD_IND] << std::endl);
+    
     TrajectoryGeneratorBridge::updateParams();
     trajectory_gen.setFunc(trajpntr);
     //[ Observer samples
@@ -158,17 +167,28 @@ ni_trajectory TrajectoryGeneratorBridge::run(traj_func* trajpntr, state_type& x0
     //Stop the clock before all of the printouts
     auto t2 = std::chrono::high_resolution_clock::now();
     std::chrono::duration<double, std::milli> fp_ms = t2 - t1;
-    std::cout << "Integration took " << fp_ms.count() << " ms\n";
+    ROS_DEBUG_STREAM("Integration took " << fp_ms.count() << " ms\n");
 
 
 
-    std::cout<< "const observer: "  << steps << " steps. final: " << '\t' << x0[0] << '\t' << x0[1]<< std::endl;
+    ROS_DEBUG_STREAM("const observer: "  << steps << " steps. final: " << '\t' << x0[0] << '\t' << x0[1]<< std::endl);
 
     ni_trajectory traj(x_vec, times);
+    //traj.print();
     
     //std::cout << traj_msgs[0] << std::endl;
     
     return traj;
+}
+
+void TrajectoryGeneratorBridge::publishPaths(ros::Publisher& pub, std::vector<ni_trajectory>& trajs)
+{
+    for(int i = 0; i < trajs.size(); i++)
+    {
+        nav_msgs::PathPtr path = trajs[i].toPathMsg();
+        pub.publish(path);
+    }
+
 }
 
 void TrajectoryGeneratorBridge::updateParams()

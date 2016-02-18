@@ -26,8 +26,8 @@ struct ni_trajectory
 
     trajectory_generator::trajectory_points toTrajectoryMsg ();
     std::vector<trajectory_generator::trajectory_point> toTrajectoryPointMsgs();
-    nav_msgs::Path toPathMsg();
-    void printTrajectory();
+    nav_msgs::PathPtr toPathMsg();
+    void print();
     size_t num_states();
     geometry_msgs::Vector3 getPoint(int i);
 
@@ -55,6 +55,8 @@ ni_trajectory run(traj_func* trajpntr, state_type& x0);
 
 void initFromOdom(const nav_msgs::OdometryPtr curr_odom, state_type& x0);
 void initFromTF( geometry_msgs::TransformStamped& curr_tf, state_type& x0);
+
+void publishPaths(ros::Publisher& pub, std::vector<ni_trajectory>& trajs);
 
 geometry_msgs::Quaternion yawToQuaternion(double yaw);
 double quaternionToYaw(geometry_msgs::Quaternion& quaternion);
