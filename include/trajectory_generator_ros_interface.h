@@ -47,6 +47,8 @@ TrajectoryGeneratorBridge();
 
 void updateParams();
 
+ni_trajectory generate_trajectory(traj_func* trajpntr);
+
 ni_trajectory generate_trajectory(const nav_msgs::OdometryPtr curr_odom, traj_func* trajpntr);
 //ni_trajectory generate_trajectory(const geometry_msgs::TransformStampedPtr curr_tf, traj_func* trajpntr);
 ni_trajectory generate_trajectory(geometry_msgs::TransformStamped& curr_tf, traj_func* trajpntr);
@@ -55,8 +57,8 @@ ni_trajectory run(traj_func* trajpntr, state_type& x0);
 
 void initFromOdom(const nav_msgs::OdometryPtr curr_odom, state_type& x0);
 void initFromTF( geometry_msgs::TransformStamped& curr_tf, state_type& x0);
-
-void publishPaths(ros::Publisher& pub, std::vector<ni_trajectory>& trajs);
+void initState(state_type& x0);
+void publishPaths(ros::Publisher& pub, std::vector<ni_trajectory>& trajs, size_t num_total_paths);
 
 geometry_msgs::Quaternion yawToQuaternion(double yaw);
 double quaternionToYaw(geometry_msgs::Quaternion& quaternion);

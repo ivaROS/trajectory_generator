@@ -101,6 +101,17 @@ TrajectoryGeneratorBridge::TrajectoryGeneratorBridge()
     robot_radius_ = .15;
 }
 
+ni_trajectory TrajectoryGeneratorBridge::generate_trajectory(traj_func* trajpntr)
+{
+    state_type x0(8);
+    TrajectoryGeneratorBridge::initState(x0);
+
+    trajectory_gen.setFunc(trajpntr);
+    
+    ni_trajectory traj = TrajectoryGeneratorBridge::run(trajpntr, x0);
+    return traj;
+}
+
 ni_trajectory TrajectoryGeneratorBridge::generate_trajectory(const nav_msgs::OdometryPtr curr_odom, traj_func* trajpntr)
 {
     state_type x0(8);
@@ -138,7 +149,7 @@ ni_trajectory TrajectoryGeneratorBridge::generate_trajectory(geometry_msgs::Tran
 
 ni_trajectory TrajectoryGeneratorBridge::run(traj_func* trajpntr, state_type& x0)
 {
-    if(DEBUG)ROS_DEBUG_STREAM("Initial State: " << x0[X_IND] << " " <<
+    if(DEBUG)ROS_INFO_STREAM("Initial State: " << x0[X_IND] << " " <<
     x0[Y_IND] << " " <<
     x0[THETA_IND]<< " " <<
     x0[V_IND]<< " " <<
@@ -181,11 +192,18 @@ ni_trajectory TrajectoryGeneratorBridge::run(traj_func* trajpntr, state_type& x0
     return traj;
 }
 
-void TrajectoryGeneratorBridge::publishPaths(ros::Publisher& pub, std::vector<ni_trajectory>& trajs)
+void TrajectoryGeneratorBridge::publishPaths(ros::Publisher& pub, std::vector<ni_trajectory>& trajs, size_t num_total_paths)
 {
-    for(int i = 0; i < trajs.size(); i++)
+    for(size_t i = 0; i < num_total_paths; i++)
     {
-        nav_msgs::PathPtr path = trajs[i].toPathMsg();
+        nav_msgs::PathPtr path;
+        if(i < trajs.size())
+            path = trajs[i].toPathMsg();
+        else
+        {
+            path = nav_msgs::PathPtr(new nav_msgs::Path);
+            path->header.frame_id = "odom";
+        }
         pub.publish(path);
     }
 
@@ -260,6 +278,7 @@ double TrajectoryGeneratorBridge::quaternionToYaw(geometry_msgs::Quaternion& qua
     return yaw;
 }
 
+//In a local frame, this is not necessary. A variation that only uses current velocities would be helpful, but will add later
 void TrajectoryGeneratorBridge::initFromOdom(const nav_msgs::OdometryPtr curr_odom, state_type& x0)
 {
     double x = curr_odom->pose.pose.position.x;
@@ -286,6 +305,18 @@ void TrajectoryGeneratorBridge::initFromOdom(const nav_msgs::OdometryPtr curr_od
 }
 
 
+
+void TrajectoryGeneratorBridge::initState(state_type& x0)
+{
+    x0[X_IND] = 0;      //x
+    x0[Y_IND] = 0;      //y
+    x0[THETA_IND] = 0;  //theta
+    x0[V_IND] = 0;      //v
+    x0[W_IND] = 0;      //w
+    x0[LAMBDA_IND] = robot_radius_;    //lambda: must be > 0!
+    x0[XD_IND] = 0;    //x_d
+    x0[YD_IND] = 0;    //y_d
+}
 
 
 

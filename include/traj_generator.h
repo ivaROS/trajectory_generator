@@ -30,7 +30,7 @@ class traj_func {
 public:
     virtual void init ( const state_type &x0 )
     {
-        std::cout << "This should only print if an init function is not defined" << std::endl;
+        //std::cout << "This should only print if an init function is not defined" << std::endl;
     }
     
     virtual void dState ( const state_type &x , state_type &dxdt , const double  t  )=0;
