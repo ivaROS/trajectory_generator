@@ -101,18 +101,18 @@ TrajectoryGeneratorBridge::TrajectoryGeneratorBridge()
     robot_radius_ = .15;
 }
 
-ni_trajectory TrajectoryGeneratorBridge::generate_trajectory(traj_func* trajpntr)
+ni_trajectory* TrajectoryGeneratorBridge::generate_trajectory(traj_func* trajpntr)
 {
     state_type x0(8);
     TrajectoryGeneratorBridge::initState(x0);
 
     trajectory_gen.setFunc(trajpntr);
     
-    ni_trajectory traj = TrajectoryGeneratorBridge::run(trajpntr, x0);
+    ni_trajectory* traj = TrajectoryGeneratorBridge::run(trajpntr, x0);
     return traj;
 }
 
-ni_trajectory TrajectoryGeneratorBridge::generate_trajectory(const nav_msgs::OdometryPtr curr_odom, traj_func* trajpntr)
+ni_trajectory* TrajectoryGeneratorBridge::generate_trajectory(const nav_msgs::OdometryPtr curr_odom, traj_func* trajpntr)
 {
     state_type x0(8);
     TrajectoryGeneratorBridge::initFromOdom(curr_odom, x0);
@@ -120,13 +120,13 @@ ni_trajectory TrajectoryGeneratorBridge::generate_trajectory(const nav_msgs::Odo
 
     trajectory_gen.setFunc(trajpntr);
     
-    ni_trajectory traj = TrajectoryGeneratorBridge::run(trajpntr, x0);
-    traj.frame_id = curr_odom->header.frame_id;
+    ni_trajectory* traj = TrajectoryGeneratorBridge::run(trajpntr, x0);
+    traj->frame_id = curr_odom->header.frame_id;
     return traj;
 }
     
     
-ni_trajectory TrajectoryGeneratorBridge::generate_trajectory( geometry_msgs::TransformStamped& curr_tf, traj_func* trajpntr)
+ni_trajectory* TrajectoryGeneratorBridge::generate_trajectory( geometry_msgs::TransformStamped& curr_tf, traj_func* trajpntr)
 {
     state_type x0(8);
     TrajectoryGeneratorBridge::initFromTF(curr_tf, x0);
@@ -134,8 +134,8 @@ ni_trajectory TrajectoryGeneratorBridge::generate_trajectory( geometry_msgs::Tra
 
     trajectory_gen.setFunc(trajpntr);
     
-    ni_trajectory traj = TrajectoryGeneratorBridge::run(trajpntr, x0);
-    traj.frame_id = curr_tf.header.frame_id;
+    ni_trajectory* traj = TrajectoryGeneratorBridge::run(trajpntr, x0);
+    traj->frame_id = curr_tf.header.frame_id;
     return traj;
 }
 /*
@@ -147,7 +147,7 @@ ni_trajectory TrajectoryGeneratorBridge::generate_trajectory(geometry_msgs::Tran
 */
 
 
-ni_trajectory TrajectoryGeneratorBridge::run(traj_func* trajpntr, state_type& x0)
+ni_trajectory* TrajectoryGeneratorBridge::run(traj_func* trajpntr, state_type& x0)
 {
     if(DEBUG)ROS_INFO_STREAM("Initial State: " << x0[X_IND] << " " <<
     x0[Y_IND] << " " <<
@@ -184,7 +184,7 @@ ni_trajectory TrajectoryGeneratorBridge::run(traj_func* trajpntr, state_type& x0
 
     if(DEBUG)ROS_DEBUG_STREAM("const observer: "  << steps << " steps. final: " << '\t' << x0[0] << '\t' << x0[1]<< std::endl);
 
-    ni_trajectory traj(x_vec, times);
+    ni_trajectory*  traj = new ni_trajectory(x_vec, times);
     //traj.print();
     
     //std::cout << traj_msgs[0] << std::endl;
