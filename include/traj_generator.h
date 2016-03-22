@@ -39,6 +39,13 @@ public:
 };
 //]
 
+struct traj_params {
+
+public:
+    double tf,t0,dt,cp,cd,cl,eps,abs_err,rel_err,a_x,a_dxdt;
+    
+    };
+
 
 
 class traj_generator {
@@ -50,14 +57,10 @@ class traj_generator {
   void setFunc(traj_func* func);
   
   std::size_t run(state_type &x0,  std::vector<state_type> &x_vec, std::vector<double> &times);
-  std::size_t run(state_type &x0, std::vector<state_type> &x_vec, std::vector<double> &times, double t0, double tf);
-  std::size_t run(state_type &x0,  std::vector<state_type> &x_vec, std::vector<double> &times, double t0, double tf, double dt, double cp, double cd, double cl, double eps);
+  std::size_t run(state_type &x0,  std::vector<state_type> &x_vec, std::vector<double> &times, traj_params &params);
   
-  void setIntegratorParams(double abs_err, double rel_err, double a_x, double a_dxdt);
-  
-  void setNIParams(double cp, double cd, double cl, double eps);
-  
-  void setTimeParams(double t0, double tf, double dt);
+  traj_params getDefaultParams();
+  void setDefaultParams(traj_params& params);
   
   private:
   
@@ -67,6 +70,8 @@ class traj_generator {
   
   double t0_, tf_, dt_;
   double cp_, cd_, cl_, eps_;
+  
+  traj_params default_params_;
   
   traj_func* trajectory_func_;
   

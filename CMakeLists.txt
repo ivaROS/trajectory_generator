@@ -131,14 +131,15 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall  -O3 -march=native -std=c++11")
 # )
 
 ## Declare a cpp executable
-add_executable(odeint_demo src/odeint_demo.cpp)
-add_executable(odeint_basic src/odeint_basic.cpp)
-add_executable(odeint_observer src/odeint_observer.cpp)
+add_executable(odeint_demo src/odeint_demo.cpp )
+add_executable(odeint_basic src/odeint_basic.cpp )
+add_executable(odeint_observer src/odeint_observer.cpp )
 add_executable(near_identity_test src/near_identity_test.cpp )
 add_executable(odeint_controller src/odeint_controller.cpp )
 add_library(traj_generator src/traj_generator.cpp )
-add_executable(test_traj_generator src/test_traj_generator.cpp)
+add_executable(test_traj_generator src/test_traj_generator.cpp )
 add_library(trajectory_generator_ros_interface src/trajectory_generator_ros_interface.cpp )
+add_executable(test_ros_interface src/test_ros_interface.cpp )
 
 ## Add cmake target dependencies of the executable/library
 ## as an example, message headers may need to be generated before nodes
@@ -179,6 +180,10 @@ target_link_libraries(odeint_observer
     traj_generator
  )
 
+  target_link_libraries(test_ros_interface
+   ${catkin_LIBRARIES}
+    trajectory_generator_ros_interface
+ )
 
 #############
 ## Install ##

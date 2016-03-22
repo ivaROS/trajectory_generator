@@ -57,7 +57,7 @@
         nav_msgs::PathPtr path_msg(new nav_msgs::Path);
         path_msg->header.frame_id = frame_id;
         
-        for(int i=0; i<x_vec.size(); i++)
+        for(size_t i=0; i<x_vec.size(); i++)
         {
             state_type state = x_vec[i];
             geometry_msgs::PoseStamped pose;
@@ -106,19 +106,17 @@ ni_trajectory* TrajectoryGeneratorBridge::generate_trajectory(traj_func* trajpnt
     state_type x0(8);
     TrajectoryGeneratorBridge::initState(x0);
 
-    trajectory_gen.setFunc(trajpntr);
     
     ni_trajectory* traj = TrajectoryGeneratorBridge::run(trajpntr, x0);
     return traj;
 }
 
-ni_trajectory* TrajectoryGeneratorBridge::generate_trajectory(const nav_msgs::OdometryPtr curr_odom, traj_func* trajpntr)
+ni_trajectory* TrajectoryGeneratorBridge::generate_trajectory(traj_func* trajpntr, const nav_msgs::OdometryPtr curr_odom)
 {
     state_type x0(8);
     TrajectoryGeneratorBridge::initFromOdom(curr_odom, x0);
 
 
-    trajectory_gen.setFunc(trajpntr);
     
     ni_trajectory* traj = TrajectoryGeneratorBridge::run(trajpntr, x0);
     traj->frame_id = curr_odom->header.frame_id;
@@ -126,13 +124,12 @@ ni_trajectory* TrajectoryGeneratorBridge::generate_trajectory(const nav_msgs::Od
 }
     
     
-ni_trajectory* TrajectoryGeneratorBridge::generate_trajectory( geometry_msgs::TransformStamped& curr_tf, traj_func* trajpntr)
+ni_trajectory* TrajectoryGeneratorBridge::generate_trajectory(traj_func* trajpntr, geometry_msgs::TransformStamped& curr_tf)
 {
     state_type x0(8);
     TrajectoryGeneratorBridge::initFromTF(curr_tf, x0);
 
 
-    trajectory_gen.setFunc(trajpntr);
     
     ni_trajectory* traj = TrajectoryGeneratorBridge::run(trajpntr, x0);
     traj->frame_id = curr_tf.header.frame_id;
@@ -211,9 +208,7 @@ void TrajectoryGeneratorBridge::publishPaths(ros::Publisher& pub, std::vector<ni
 
 void TrajectoryGeneratorBridge::updateParams()
 {
-    double t0 = 0;
-    double tf = 10;
-    double dt = .1;
+/*
     
     std::string key;
     
@@ -222,7 +217,7 @@ void TrajectoryGeneratorBridge::updateParams()
         ros::param::get(key, tf); 
     }
     
-    trajectory_gen.setTimeParams(t0, tf, dt);
+*/
 
 }
 
@@ -233,7 +228,7 @@ void TrajectoryGeneratorBridge::initFromTF( geometry_msgs::TransformStamped& cur
     double theta = TrajectoryGeneratorBridge::quaternionToYaw(curr_tf.transform.rotation);
     double vx = 0;
     double vy = 0;
-    double v = 0; 
+    double v = sqrt(vx*vx + vy*vy); 
     double w = 0;
 
 
