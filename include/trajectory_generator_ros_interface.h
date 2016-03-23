@@ -8,6 +8,7 @@
 #include <geometry_msgs/TransformStamped.h>
 #include <geometry_msgs/Quaternion.h>
 #include <geometry_msgs/Vector3.h>
+//#include "tf2_trajectory.h"
 
 #ifndef TRAJECTORY_GENERATOR_ROS_INTERFACE_H
 #define TRAJECTORY_GENERATOR_ROS_INTERFACE_H
@@ -46,6 +47,8 @@ public:
 TrajectoryGeneratorBridge();
 
 void updateParams();
+traj_params getDefaultParams();
+void setDefaultParams(traj_params &new_params);
 
 ni_trajectory* generate_trajectory(traj_func* trajpntr);
 

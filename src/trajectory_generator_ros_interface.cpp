@@ -209,16 +209,29 @@ void TrajectoryGeneratorBridge::publishPaths(ros::Publisher& pub, std::vector<ni
 void TrajectoryGeneratorBridge::updateParams()
 {
 /*
+    traj_params params = trajectory_gen.getDefaultParams();
     
     std::string key;
+    double tf;
     
     if(ros::param::search("tf", key))
     {
         ros::param::get(key, tf); 
+        params.tf = tf;
     }
-    
+
 */
 
+}
+
+traj_params TrajectoryGeneratorBridge::getDefaultParams()
+{
+  return trajectory_gen.getDefaultParams();
+}
+
+void TrajectoryGeneratorBridge::setDefaultParams(traj_params &new_params)
+{
+  trajectory_gen.setDefaultParams(new_params);
 }
 
 void TrajectoryGeneratorBridge::initFromTF( geometry_msgs::TransformStamped& curr_tf, state_type& x0)
