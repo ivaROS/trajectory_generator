@@ -18,9 +18,11 @@ inline
       pos = transform * pos;
       
       double theta = p_in.theta + rotation;
-      
-      p_out.x = pos(1);
-      p_out.y = pos(2);
+
+      p_out.time = p_in.time;
+
+      p_out.x = pos(0);
+      p_out.y = pos(1);
       p_out.theta = theta;
       p_out.v = p_in.v;
       p_out.w = p_in.w;
