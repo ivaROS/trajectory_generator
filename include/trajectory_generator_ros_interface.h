@@ -20,7 +20,7 @@ struct ni_trajectory
 
     std::vector<state_type> x_vec;
     std::vector<double> times;
-    std::string frame_id;  //Note sure whether to include Frame at this level
+    std::string frame_id = "";  //Note sure whether to include Frame at this level
 
 
     ni_trajectory( std::vector< state_type > states , std::vector< double > t ) : x_vec( states ) , times( t ) { }
