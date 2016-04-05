@@ -26,6 +26,7 @@ struct ni_trajectory
     ni_trajectory( std::vector< state_type > states , std::vector< double > t ) : x_vec( states ) , times( t ) { }
 
     trajectory_generator::trajectory_points toTrajectoryMsg ();
+    trajectory_generator::trajectory_pointsPtr toTrajectoryMsgPtr ();
     std::vector<trajectory_generator::trajectory_point> toTrajectoryPointMsgs();
     nav_msgs::PathPtr toPathMsg();
     void print();

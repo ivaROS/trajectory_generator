@@ -62,8 +62,28 @@ template <>
     t_out.header.stamp = t_in.header.stamp; //tf2 examples use the transform's stamp...
     t_out.header.frame_id = transform_stamped.header.frame_id;
   }
+
+
+
+
+
+// method to extract timestamp from object
+template <>
+inline
+  const ros::Time& getTimestamp(const trajectory_generator::trajectory_pointsPtr& t) {return t->header.stamp;}
+
+// method to extract frame id from object
+template <>
+inline
+  const std::string& getFrameId(const trajectory_generator::trajectory_pointsPtr& t) {return t->header.frame_id;}
+
+// this method needs to be implemented by client library developers
+template <>
+  void doTransform(const trajectory_generator::trajectory_pointsPtr& t_in, trajectory_generator::trajectory_pointsPtr& t_out, const geometry_msgs::TransformStamped& transform_stamped)
+  {
+    doTransform(*t_in,*t_out,transform_stamped);
   
-  
+  }
   
   
   //This function based on pcl eigen.hpp

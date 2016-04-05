@@ -38,6 +38,15 @@
         return trajectory_msg;
     }
     
+    trajectory_generator::trajectory_pointsPtr ni_trajectory::toTrajectoryMsgPtr ()
+    {
+      trajectory_generator::trajectory_pointsPtr msgPtr(new trajectory_generator::trajectory_points);
+      msgPtr->points = ni_trajectory::toTrajectoryPointMsgs();
+      msgPtr->header.frame_id = frame_id;
+      
+      return msgPtr;
+    }
+    
     void ni_trajectory::print()
     {
         std::cout << "Time" << '\t' << "Error" << '\t' << 'x' << '\t' << 'y' << '\t' << "theta" << '\t' << 'v' << '\t' << 'w' << '\t' << "lambda" << '\t' << "xd" << '\t' << "yd" << std::endl;
