@@ -121,7 +121,7 @@ ni_trajectory* TrajectoryGeneratorBridge::generate_trajectory(traj_func* trajpnt
     return traj;
 }
 
-ni_trajectory* TrajectoryGeneratorBridge::generate_trajectory(traj_func* trajpntr, const nav_msgs::OdometryPtr curr_odom)
+ni_trajectory* TrajectoryGeneratorBridge::generate_trajectory(traj_func* trajpntr, const nav_msgs::OdometryPtr& curr_odom)
 {
     state_type x0(8);
     TrajectoryGeneratorBridge::initFromOdom(curr_odom, x0);
@@ -132,7 +132,6 @@ ni_trajectory* TrajectoryGeneratorBridge::generate_trajectory(traj_func* trajpnt
     traj->frame_id = curr_odom->header.frame_id;
     return traj;
 }
-    
     
 ni_trajectory* TrajectoryGeneratorBridge::generate_trajectory(traj_func* trajpntr, geometry_msgs::TransformStamped& curr_tf)
 {
@@ -296,31 +295,24 @@ double TrajectoryGeneratorBridge::quaternionToYaw(geometry_msgs::Quaternion& qua
     return yaw;
 }
 
-//In a local frame, this is not necessary. A variation that only uses current velocities would be helpful, but will add later
+//In local frame, all the matters are the velocities. One option could be to call the 'initState' function first, then allow calling this one, which would only change the velocities
 void TrajectoryGeneratorBridge::initFromOdom(const nav_msgs::OdometryPtr curr_odom, state_type& x0)
 {
-    double x = curr_odom->pose.pose.position.x;
-    double y = curr_odom->pose.pose.position.y;
-    double theta = TrajectoryGeneratorBridge::quaternionToYaw(curr_odom->pose.pose.orientation);
     double vx = curr_odom->twist.twist.linear.x;
     double vy = curr_odom->twist.twist.linear.y;
     double v = std::sqrt((vx*vx) + (vy*vy)); 
     double w = curr_odom->twist.twist.angular.z;
 
-    geometry_msgs::Quaternion newquat = TrajectoryGeneratorBridge::yawToQuaternion(theta);
-
-    if(DEBUG)std::cout << "Odom quaternion: w=" << curr_odom->pose.pose.orientation.w << ", z=" << curr_odom->pose.pose.orientation.z << "; Theta from quat: " << theta << "; quat from theta: w=" << newquat.w << ", z=" << newquat.z << std::endl;
-
-
-    x0[X_IND] = x;      //x
-    x0[Y_IND] = y;      //y
-    x0[THETA_IND] = theta;  //theta
+    x0[X_IND] = 0;      //x
+    x0[Y_IND] = 0;      //y
+    x0[THETA_IND] = 0;  //theta
     x0[V_IND] = v;      //v
     x0[W_IND] = w;      //w
     x0[LAMBDA_IND] = robot_radius_;    //lambda: must be > 0!
-    x0[XD_IND] = x;    //x_d
-    x0[YD_IND] = y;    //y_d
+    x0[XD_IND] = 0;    //x_d
+    x0[YD_IND] = 0;    //y_d
 }
+
 
 
 
@@ -361,8 +353,7 @@ const nav_msgs::OdometryPtr TrajectoryGeneratorBridge::OdomFromState(state_type&
     
     odom->pose.pose.position.x = x;
     odom->pose.pose.position.y = y;
-    odom->pose.pose.orientation.w = std::cos(theta/2);
-    odom->pose.pose.orientation.z = std::sin(theta/2);
+    odom->pose.pose.orientation = TrajectoryGeneratorBridge::yawToQuaternion(theta);
     odom->twist.twist.linear.x = vx;
     odom->twist.twist.linear.y = vy; 
     odom->twist.twist.angular.z = w;
