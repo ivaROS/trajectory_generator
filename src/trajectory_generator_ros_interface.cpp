@@ -15,11 +15,11 @@
         {
             trajectory_generator::trajectory_point point;
             point.time = ros::Duration(times[i]);
-            point.x = x_vec[i][X_IND];
-            point.y = x_vec[i][Y_IND];
-            point.theta = x_vec[i][THETA_IND];
-            point.v = x_vec[i][V_IND];
-            point.w = x_vec[i][W_IND];
+            point.x = x_vec[i][near_identity::X_IND];
+            point.y = x_vec[i][near_identity::Y_IND];
+            point.theta = x_vec[i][near_identity::THETA_IND];
+            point.v = x_vec[i][near_identity::V_IND];
+            point.w = x_vec[i][near_identity::W_IND];
             trajectory.push_back(point);
         }
         return trajectory;
@@ -53,8 +53,8 @@
     
         for( size_t i=0; i<x_vec.size(); i++ )
         {
-            double error_x = x_vec[i][X_IND] - x_vec[i][XD_IND];
-            double error_y = x_vec[i][Y_IND] - x_vec[i][YD_IND];
+            double error_x = x_vec[i][near_identity::X_IND] - x_vec[i][near_identity::XD_IND];
+            double error_y = x_vec[i][near_identity::Y_IND] - x_vec[i][near_identity::YD_IND];
             
             double error = sqrt(error_x*error_x + error_y*error_y);
             printf("%.4f\t%.4f\t%.4f\t%.4f\t%.4f\t%.4f\t%.4f\t%.4f\t%.4f\t%.4f\n", times[i], error, x_vec[i][0], x_vec[i][1], x_vec[i][2], x_vec[i][3], x_vec[i][4], x_vec[i][5], x_vec[i][6], x_vec[i][7]);
@@ -73,10 +73,10 @@
             geometry_msgs::PoseStamped pose;
             pose.header.frame_id = frame_id;
             
-            pose.pose.position.x = state[X_IND];
-            pose.pose.position.y = state[Y_IND];
+            pose.pose.position.x = state[near_identity::X_IND];
+            pose.pose.position.y = state[near_identity::Y_IND];
 
-            double theta = state[THETA_IND];
+            double theta = state[near_identity::THETA_IND];
             pose.pose.orientation.w = cos(theta/2);
             pose.pose.orientation.z = sin(theta/2);
 
@@ -95,8 +95,8 @@
     {
         state_type state = x_vec[i];
         geometry_msgs::Vector3 vec;
-        vec.x = state[X_IND];
-        vec.y = state[Y_IND];
+        vec.x = state[near_identity::X_IND];
+        vec.y = state[near_identity::Y_IND];
         return vec;
     }
     
@@ -155,14 +155,14 @@ ni_trajectory TrajectoryGeneratorBridge::generate_trajectory(geometry_msgs::Tran
 
 ni_trajectory* TrajectoryGeneratorBridge::run(traj_func* trajpntr, state_type& x0)
 {
-    if(DEBUG)ROS_INFO_STREAM("Initial State: " << x0[X_IND] << " " <<
-    x0[Y_IND] << " " <<
-    x0[THETA_IND]<< " " <<
-    x0[V_IND]<< " " <<
-    x0[W_IND]<< " " <<
-    x0[LAMBDA_IND] << " " <<
-    x0[XD_IND] << " " <<
-    x0[YD_IND] << std::endl);
+    if(DEBUG)ROS_INFO_STREAM("Initial State: " << x0[near_identity::X_IND] << " " <<
+    x0[near_identity::Y_IND] << " " <<
+    x0[near_identity::THETA_IND]<< " " <<
+    x0[near_identity::V_IND]<< " " <<
+    x0[near_identity::W_IND]<< " " <<
+    x0[near_identity::LAMBDA_IND] << " " <<
+    x0[near_identity::XD_IND] << " " <<
+    x0[near_identity::YD_IND] << std::endl);
     
     TrajectoryGeneratorBridge::updateParams();
     trajectory_gen.setFunc(trajpntr);
@@ -264,14 +264,14 @@ void TrajectoryGeneratorBridge::initFromTF( geometry_msgs::TransformStamped& cur
     tf::Matrix3x3(quat).getRPY(roll, pitch, yaw);
     */
 
-    x0[X_IND] = x;      //x
-    x0[Y_IND] = y;      //y
-    x0[THETA_IND] = theta;  //theta
-    x0[V_IND] = v;      //v
-    x0[W_IND] = w;      //w
-    x0[LAMBDA_IND] = robot_radius_;    //lambda: must be > 0!
-    x0[XD_IND] = x;    //x_d
-    x0[YD_IND] = y;    //y_d
+    x0[near_identity::X_IND] = x;      //x
+    x0[near_identity::Y_IND] = y;      //y
+    x0[near_identity::THETA_IND] = theta;  //theta
+    x0[near_identity::V_IND] = v;      //v
+    x0[near_identity::W_IND] = w;      //w
+    x0[near_identity::LAMBDA_IND] = robot_radius_;    //lambda: must be > 0!
+    x0[near_identity::XD_IND] = x;    //x_d
+    x0[near_identity::YD_IND] = y;    //y_d
 }
 
 
@@ -303,14 +303,14 @@ void TrajectoryGeneratorBridge::initFromOdom(const nav_msgs::OdometryPtr curr_od
     double v = std::sqrt((vx*vx) + (vy*vy)); 
     double w = curr_odom->twist.twist.angular.z;
 
-    x0[X_IND] = 0;      //x
-    x0[Y_IND] = 0;      //y
-    x0[THETA_IND] = 0;  //theta
-    x0[V_IND] = v;      //v
-    x0[W_IND] = w;      //w
-    x0[LAMBDA_IND] = robot_radius_;    //lambda: must be > 0!
-    x0[XD_IND] = 0;    //x_d
-    x0[YD_IND] = 0;    //y_d
+    x0[near_identity::X_IND] = 0;      //x
+    x0[near_identity::Y_IND] = 0;      //y
+    x0[near_identity::THETA_IND] = 0;  //theta
+    x0[near_identity::V_IND] = v;      //v
+    x0[near_identity::W_IND] = w;      //w
+    x0[near_identity::LAMBDA_IND] = robot_radius_;    //lambda: must be > 0!
+    x0[near_identity::XD_IND] = 0;    //x_d
+    x0[near_identity::YD_IND] = 0;    //y_d
 }
 
 
@@ -318,14 +318,14 @@ void TrajectoryGeneratorBridge::initFromOdom(const nav_msgs::OdometryPtr curr_od
 
 void TrajectoryGeneratorBridge::initState(state_type& x0)
 {
-    x0[X_IND] = 0;      //x
-    x0[Y_IND] = 0;      //y
-    x0[THETA_IND] = 0;  //theta
-    x0[V_IND] = 0;      //v
-    x0[W_IND] = 0;      //w
-    x0[LAMBDA_IND] = robot_radius_;    //lambda: must be > 0!
-    x0[XD_IND] = 0;    //x_d
-    x0[YD_IND] = 0;    //y_d
+    x0[near_identity::X_IND] = 0;      //x
+    x0[near_identity::Y_IND] = 0;      //y
+    x0[near_identity::THETA_IND] = 0;  //theta
+    x0[near_identity::V_IND] = 0;      //v
+    x0[near_identity::W_IND] = 0;      //w
+    x0[near_identity::LAMBDA_IND] = robot_radius_;    //lambda: must be > 0!
+    x0[near_identity::XD_IND] = 0;    //x_d
+    x0[near_identity::YD_IND] = 0;    //y_d
 }
 
 
@@ -339,11 +339,11 @@ const nav_msgs::OdometryPtr TrajectoryGeneratorBridge::OdomFromState(state_type&
 {
     nav_msgs::OdometryPtr odom;
     
-    double x = state[X_IND];      //x
-    double y = state[Y_IND];      //y
-    double theta = state[THETA_IND];  //theta
-    double v = state[V_IND];      //v
-    double w = state[W_IND];      //w
+    double x = state[near_identity::X_IND];      //x
+    double y = state[near_identity::Y_IND];      //y
+    double theta = state[near_identity::THETA_IND];  //theta
+    double v = state[near_identity::V_IND];      //v
+    double w = state[near_identity::W_IND];      //w
     
     double vx = v*std::cos(theta);
     double vy = v*std::sin(theta);
