@@ -11,7 +11,7 @@
     std::vector<trajectory_generator::trajectory_point> ni_trajectory::toTrajectoryPointMsgs()
     {
         std::vector<trajectory_generator::trajectory_point> trajectory;
-        for(size_t i = 0; i < x_vec.size(); i++)
+        for(size_t i = 0; i < ni_trajectory::num_states(); i++)
         {
             trajectory_generator::trajectory_point point;
             point.time = ros::Duration(times[i]);
@@ -51,7 +51,7 @@
     {
         std::cout << "Time" << '\t' << "Error" << '\t' << 'x' << '\t' << 'y' << '\t' << "theta" << '\t' << 'v' << '\t' << 'w' << '\t' << "lambda" << '\t' << "xd" << '\t' << "yd" << std::endl;
     
-        for( size_t i=0; i<x_vec.size(); i++ )
+        for( size_t i=0; i<ni_trajectory::num_states(); i++ )
         {
             double error_x = x_vec[i][near_identity::X_IND] - x_vec[i][near_identity::XD_IND];
             double error_y = x_vec[i][near_identity::Y_IND] - x_vec[i][near_identity::YD_IND];
@@ -67,7 +67,7 @@
         nav_msgs::PathPtr path_msg(new nav_msgs::Path);
         path_msg->header.frame_id = frame_id;
         
-        for(size_t i=0; i<x_vec.size(); i++)
+        for(size_t i=0; i<ni_trajectory::num_states(); i++)
         {
             state_type state = x_vec[i];
             geometry_msgs::PoseStamped pose;
@@ -77,8 +77,7 @@
             pose.pose.position.y = state[near_identity::Y_IND];
 
             double theta = state[near_identity::THETA_IND];
-            pose.pose.orientation.w = cos(theta/2);
-            pose.pose.orientation.z = sin(theta/2);
+            pose.pose.orientation = TrajectoryGeneratorBridge::yawToQuaternion(theta);//what I had here before seemed to work, but I would prefer to encapsulate all my conversions
 
             path_msg->poses.push_back(pose);
         }
@@ -91,16 +90,24 @@
         return x_vec.size();
     }
     
-    geometry_msgs::Vector3 ni_trajectory::getPoint(int i)
+    geometry_msgs::Point ni_trajectory::getPoint(int i)
     {
         state_type state = x_vec[i];
-        geometry_msgs::Vector3 vec;
-        vec.x = state[near_identity::X_IND];
-        vec.y = state[near_identity::Y_IND];
-        return vec;
+        geometry_msgs::Point point;
+        point.x = state[near_identity::X_IND];
+        point.y = state[near_identity::Y_IND];
+        return point;
     }
     
-
+    geometry_msgs::PointStamped ni_trajectory::getPointStamped(int i)
+    {
+        geometry_msgs::PointStamped point;
+        point.point = getPoint(i);
+        
+        return point;
+    }
+    
+    
 
 
 TrajectoryGeneratorBridge::TrajectoryGeneratorBridge()
@@ -113,8 +120,7 @@ TrajectoryGeneratorBridge::TrajectoryGeneratorBridge()
 
 ni_trajectory* TrajectoryGeneratorBridge::generate_trajectory(traj_func* trajpntr)
 {
-    state_type x0(8);
-    TrajectoryGeneratorBridge::initState(x0);
+    state_type x0 = TrajectoryGeneratorBridge::initState();
 
     
     ni_trajectory* traj = TrajectoryGeneratorBridge::run(trajpntr, x0);
@@ -123,8 +129,9 @@ ni_trajectory* TrajectoryGeneratorBridge::generate_trajectory(traj_func* trajpnt
 
 ni_trajectory* TrajectoryGeneratorBridge::generate_trajectory(traj_func* trajpntr, const nav_msgs::OdometryPtr& curr_odom)
 {
-    state_type x0(8);
-    TrajectoryGeneratorBridge::initFromOdom(curr_odom, x0);
+    state_type x0 = TrajectoryGeneratorBridge::initState();
+
+    TrajectoryGeneratorBridge::initState(x0,curr_odom);
 
 
     
@@ -133,16 +140,17 @@ ni_trajectory* TrajectoryGeneratorBridge::generate_trajectory(traj_func* trajpnt
     return traj;
 }
     
-ni_trajectory* TrajectoryGeneratorBridge::generate_trajectory(traj_func* trajpntr, geometry_msgs::TransformStamped& curr_tf)
-{
-    state_type x0(8);
-    TrajectoryGeneratorBridge::initFromTF(curr_tf, x0);
 
+void TrajectoryGeneratorBridge::generate_trajectory(ni_trajectory* trajectory)
+{   //How long does the integration take? Get current time
+    auto t1 = std::chrono::high_resolution_clock::now();
 
+    trajectory_gen.run(trajectory->trajpntr, trajectory->x0_, trajectory->x_vec, trajectory->times);  //, trajectory->params
     
-    ni_trajectory* traj = TrajectoryGeneratorBridge::run(trajpntr, x0);
-    traj->frame_id = curr_tf.header.frame_id;
-    return traj;
+    auto t2 = std::chrono::high_resolution_clock::now();
+    std::chrono::duration<double, std::milli> fp_ms = t2 - t1;
+    
+    if(DEBUG)ROS_DEBUG_STREAM("Integration took " << fp_ms.count() << " ms\n");
 }
 /*
 ni_trajectory TrajectoryGeneratorBridge::generate_trajectory(geometry_msgs::TransformStamped curr_tf, traj_func* trajpntr)
@@ -243,37 +251,6 @@ void TrajectoryGeneratorBridge::setDefaultParams(traj_params &new_params)
   trajectory_gen.setDefaultParams(new_params);
 }
 
-void TrajectoryGeneratorBridge::initFromTF( geometry_msgs::TransformStamped& curr_tf, state_type& x0)
-{
-    double x = curr_tf.transform.translation.x;
-    double y = curr_tf.transform.translation.y;
-    double theta = TrajectoryGeneratorBridge::quaternionToYaw(curr_tf.transform.rotation);
-    double vx = 0;
-    double vy = 0;
-    double v = sqrt(vx*vx + vy*vy); 
-    double w = 0;
-
-
-//The following is an option
-/*// the incoming geometry_msgs::Quaternion is transformed to a tf::Quaterion
-    tf::Quaternion quat;
-    tf::quaternionMsgToTF(msg, quat);
-
-    // the tf::Quaternion has a method to acess roll pitch and yaw
-    double roll, pitch, yaw;
-    tf::Matrix3x3(quat).getRPY(roll, pitch, yaw);
-    */
-
-    x0[near_identity::X_IND] = x;      //x
-    x0[near_identity::Y_IND] = y;      //y
-    x0[near_identity::THETA_IND] = theta;  //theta
-    x0[near_identity::V_IND] = v;      //v
-    x0[near_identity::W_IND] = w;      //w
-    x0[near_identity::LAMBDA_IND] = robot_radius_;    //lambda: must be > 0!
-    x0[near_identity::XD_IND] = x;    //x_d
-    x0[near_identity::YD_IND] = y;    //y_d
-}
-
 
 geometry_msgs::Quaternion TrajectoryGeneratorBridge::yawToQuaternion(double yaw)
 {
@@ -295,26 +272,25 @@ double TrajectoryGeneratorBridge::quaternionToYaw(geometry_msgs::Quaternion& qua
     return yaw;
 }
 
-//In local frame, all the matters are the velocities. One option could be to call the 'initState' function first, then allow calling this one, which would only change the velocities
-void TrajectoryGeneratorBridge::initFromOdom(const nav_msgs::OdometryPtr curr_odom, state_type& x0)
+
+
+
+void TrajectoryGeneratorBridge::initState(ni_trajectory* traj, const nav_msgs::OdometryPtr& curr_odom)
+{
+    TrajectoryGeneratorBridge::initState(traj->x0_, curr_odom);
+    
+}
+
+void TrajectoryGeneratorBridge::initState(state_type& x0, const nav_msgs::OdometryPtr& curr_odom)
 {
     double vx = curr_odom->twist.twist.linear.x;
     double vy = curr_odom->twist.twist.linear.y;
     double v = std::sqrt((vx*vx) + (vy*vy)); 
     double w = curr_odom->twist.twist.angular.z;
 
-    x0[near_identity::X_IND] = 0;      //x
-    x0[near_identity::Y_IND] = 0;      //y
-    x0[near_identity::THETA_IND] = 0;  //theta
     x0[near_identity::V_IND] = v;      //v
     x0[near_identity::W_IND] = w;      //w
-    x0[near_identity::LAMBDA_IND] = robot_radius_;    //lambda: must be > 0!
-    x0[near_identity::XD_IND] = 0;    //x_d
-    x0[near_identity::YD_IND] = 0;    //y_d
 }
-
-
-
 
 void TrajectoryGeneratorBridge::initState(state_type& x0)
 {
@@ -330,7 +306,12 @@ void TrajectoryGeneratorBridge::initState(state_type& x0)
 
 
 
-
+state_type TrajectoryGeneratorBridge::initState()
+{
+    state_type x0(8);
+    TrajectoryGeneratorBridge::initState(x0);
+    return x0;
+}
 
 
 

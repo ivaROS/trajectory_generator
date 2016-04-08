@@ -58,6 +58,8 @@ class traj_generator {
   
   std::size_t run(state_type &x0,  std::vector<state_type> &x_vec, std::vector<double> &times);
   std::size_t run(state_type &x0,  std::vector<state_type> &x_vec, std::vector<double> &times, traj_params &params);
+  std::size_t run(traj_func* func, state_type &x0, std::vector<state_type> &x_vec, std::vector<double> &times);
+  std::size_t run(traj_func* func, state_type &x0, std::vector<state_type> &x_vec, std::vector<double> &times, traj_params &params);  
   
   traj_params getDefaultParams();
   void setDefaultParams(traj_params& params);

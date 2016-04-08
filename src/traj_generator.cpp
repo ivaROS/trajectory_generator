@@ -150,6 +150,51 @@ using namespace boost::numeric::odeint;
     return steps;
   
 }  
+
+size_t traj_generator::run(traj_func* func, state_type &x0, std::vector<state_type> &x_vec, std::vector<double> &times)
+{
+  return traj_generator::run(func, x0, x_vec, times, default_params_);
+}
+
+size_t traj_generator::run(traj_func* func, state_type &x0, std::vector<state_type> &x_vec, std::vector<double> &times, traj_params &params)
+{
+using namespace boost::numeric::odeint;
+
+  //Lambda must never equal 0
+  if (x0[5] ==0)
+    return 0;
   
+
+    size_t steps;
+
+    x_vec.clear();
+    times.clear();
+    
+    near_identity ni(params.cp,params.cd,params.cl,params.eps);
+    
+    func->init(x0);
+    
+    ni_controller controller(ni);
+    controller.setTrajFunc(func);
+  
+
+    {
+     typedef runge_kutta_cash_karp54< state_type > error_stepper_type;
+    typedef controlled_runge_kutta< error_stepper_type > controlled_stepper_type;
+    controlled_stepper_type controlled_stepper( 
+        default_error_checker< double , range_algebra , default_operations >( params.abs_err, params.rel_err, params.a_x, params.a_dxdt) );
+
+
+
+    //[ equidistant observer calls with adaptive internal step size:
+    steps = integrate_const( controlled_stepper , controller , x0 , params.t0, params.tf, params.dt, push_back_state_and_time( x_vec , times ) );
+    
+    }
+    
+    return steps;
+  
+}  
+  
+
 
 
