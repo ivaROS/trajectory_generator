@@ -72,17 +72,57 @@ ni_trajectory* run(traj_func* trajpntr, state_type& x0);
 void generate_trajectory(ni_trajectory* trajectory);
 
 inline
-state_type initState();
+state_type initState()
+{
+    state_type x0(8);
+    TrajectoryGeneratorBridge::initState(x0);
+    return x0;
+}
+
+
 
 inline
-void initState(state_type& x0, const nav_msgs::OdometryPtr& curr_odom);
+void initState(state_type& x0)
+{
+    x0[near_identity::X_IND] = 0;      //x
+    x0[near_identity::Y_IND] = 0;      //y
+    x0[near_identity::THETA_IND] = 0;  //theta
+    x0[near_identity::V_IND] = 0;      //v
+    x0[near_identity::W_IND] = 0;      //w
+    x0[near_identity::LAMBDA_IND] = robot_radius_;    //lambda: must be > 0!
+    x0[near_identity::XD_IND] = 0;    //x_d
+    x0[near_identity::YD_IND] = 0;    //y_d
+}
 
 inline
-void initState(state_type& x0);
+void initState(state_type& x0, const nav_msgs::OdometryPtr& curr_odom)
+{
+    double vx = curr_odom->twist.twist.linear.x;
+    double vy = curr_odom->twist.twist.linear.y;
+    double v = std::sqrt((vx*vx) + (vy*vy)); 
+    double w = curr_odom->twist.twist.angular.z;
+
+    x0[near_identity::V_IND] = v;      //v
+    x0[near_identity::W_IND] = w;      //w
+}
 
 inline
-void initState(ni_trajectory* traj, const nav_msgs::OdometryPtr& curr_odom);
+void initState(ni_trajectory* traj, const nav_msgs::OdometryPtr& curr_odom)
+{
+    initState(traj->x0_, curr_odom);
+    
+}
 
+
+template<typename T>
+state_type initState(T& source)
+{
+    state_type x0 = TrajectoryGeneratorBridge::initState();
+    initState(x0, source);
+    return x0;
+}
+
+template<const nav_msgs::OdometryPtr&> state_type initState(const nav_msgs::OdometryPtr& curr_odom);
 
 inline
 static geometry_msgs::Quaternion yawToQuaternion(double yaw);
@@ -90,7 +130,8 @@ static geometry_msgs::Quaternion yawToQuaternion(double yaw);
 inline
 static double quaternionToYaw(geometry_msgs::Quaternion& quaternion);
 
-const nav_msgs::OdometryPtr OdomFromState(state_type& state, double t, std_msgs::Header header);
+inline
+static const nav_msgs::OdometryPtr OdomFromState(state_type& state, double t, std_msgs::Header header);
 
 void publishPaths(ros::Publisher& pub, std::vector<ni_trajectory>& trajs, size_t num_total_paths);
 
