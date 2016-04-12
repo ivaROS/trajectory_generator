@@ -33,7 +33,7 @@
     
         trajectory_generator::trajectory_points trajectory_msg;
         trajectory_msg.points = points;
-        trajectory_msg.header.frame_id = frame_id;
+        trajectory_msg.header = header;
         
         return trajectory_msg;
     }
