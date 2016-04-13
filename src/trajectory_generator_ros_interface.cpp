@@ -11,7 +11,7 @@
     std::vector<trajectory_generator::trajectory_point> ni_trajectory::toTrajectoryPointMsgs()
     {
         std::vector<trajectory_generator::trajectory_point> trajectory;
-        for(size_t i = 0; i < ni_trajectory::num_states(); i++)
+        for(size_t i = 0; i < this->num_states(); i++)
         {
             trajectory_generator::trajectory_point point;
             point.time = ros::Duration(times[i]);
@@ -51,7 +51,7 @@
     {
         std::cout << "Time" << '\t' << "Error" << '\t' << 'x' << '\t' << 'y' << '\t' << "theta" << '\t' << 'v' << '\t' << 'w' << '\t' << "lambda" << '\t' << "xd" << '\t' << "yd" << std::endl;
     
-        for( size_t i=0; i<ni_trajectory::num_states(); i++ )
+        for( size_t i=0; i < this->num_states(); i++ )
         {
             double error_x = x_vec[i][near_identity::X_IND] - x_vec[i][near_identity::XD_IND];
             double error_y = x_vec[i][near_identity::Y_IND] - x_vec[i][near_identity::YD_IND];
@@ -65,9 +65,9 @@
     nav_msgs::PathPtr ni_trajectory::toPathMsg()
     {
         nav_msgs::PathPtr path_msg(new nav_msgs::Path);
-        path_msg->header.frame_id = frame_id;
+        path_msg->header = header;
         
-        for(size_t i=0; i<ni_trajectory::num_states(); i++)
+        for(size_t i=0; i < this->num_states(); i++)
         {
             state_type state = x_vec[i];
             geometry_msgs::PoseStamped pose;
@@ -206,13 +206,13 @@ ni_trajectory* TrajectoryGeneratorBridge::run(traj_func* trajpntr, state_type& x
     return traj;
 }
 
-void TrajectoryGeneratorBridge::publishPaths(ros::Publisher& pub, std::vector<ni_trajectory>& trajs, size_t num_total_paths)
+void TrajectoryGeneratorBridge::publishPaths(ros::Publisher& pub, std::vector<ni_trajectory*>& trajs, size_t num_total_paths)
 {
     for(size_t i = 0; i < num_total_paths; i++)
     {
         nav_msgs::PathPtr path;
         if(i < trajs.size())
-            path = trajs[i].toPathMsg();
+            path = trajs[i]->toPathMsg();
         else
         {
             path = nav_msgs::PathPtr(new nav_msgs::Path);
