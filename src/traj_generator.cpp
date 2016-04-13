@@ -89,7 +89,13 @@ traj_generator::traj_generator()
   
 }
 
-traj_params traj_generator::getDefaultParams()
+traj_params* traj_generator::getDefaultParams()
+{
+  //traj_params param_copy(default_params_);
+  return &default_params_; 
+}
+
+traj_params traj_generator::copyDefaultParams()
 {
   //traj_params param_copy(default_params_);
   return default_params_; 
@@ -109,10 +115,10 @@ void traj_generator::setFunc(traj_func* func)
 
 size_t traj_generator::run(state_type &x0, std::vector<state_type> &x_vec, std::vector<double> &times)
 {
-    return traj_generator::run(x0, x_vec, times, default_params_);
+    return traj_generator::run(x0, x_vec, times, &default_params_);
 }
 
-size_t traj_generator::run(state_type &x0, std::vector<state_type> &x_vec, std::vector<double> &times, traj_params &params)
+size_t traj_generator::run(state_type &x0, std::vector<state_type> &x_vec, std::vector<double> &times, traj_params *params)
 {
 using namespace boost::numeric::odeint;
 
@@ -126,7 +132,7 @@ using namespace boost::numeric::odeint;
     x_vec.clear();
     times.clear();
     
-    near_identity ni(params.cp,params.cd,params.cl,params.eps);
+    near_identity ni(params->cp,params->cd,params->cl,params->eps);
     
     trajectory_func_->init(x0);
     
@@ -138,12 +144,12 @@ using namespace boost::numeric::odeint;
      typedef runge_kutta_cash_karp54< state_type > error_stepper_type;
     typedef controlled_runge_kutta< error_stepper_type > controlled_stepper_type;
     controlled_stepper_type controlled_stepper( 
-        default_error_checker< double , range_algebra , default_operations >( params.abs_err, params.rel_err, params.a_x, params.a_dxdt) );
+        default_error_checker< double , range_algebra , default_operations >( params->abs_err, params->rel_err, params->a_x, params->a_dxdt) );
 
 
 
     //[ equidistant observer calls with adaptive internal step size:
-    steps = integrate_const( controlled_stepper , controller , x0 , params.t0, params.tf, params.dt, push_back_state_and_time( x_vec , times ) );
+    steps = integrate_const( controlled_stepper , controller , x0 , params->t0, params->tf, params->dt, push_back_state_and_time( x_vec , times ) );
     
     }
     
@@ -153,10 +159,10 @@ using namespace boost::numeric::odeint;
 
 size_t traj_generator::run(traj_func* func, state_type &x0, std::vector<state_type> &x_vec, std::vector<double> &times)
 {
-  return traj_generator::run(func, x0, x_vec, times, default_params_);
+  return traj_generator::run(func, x0, x_vec, times, &default_params_);
 }
 
-size_t traj_generator::run(traj_func* func, state_type &x0, std::vector<state_type> &x_vec, std::vector<double> &times, traj_params &params)
+size_t traj_generator::run(traj_func* func, state_type &x0, std::vector<state_type> &x_vec, std::vector<double> &times, traj_params *params)
 {
 using namespace boost::numeric::odeint;
 
@@ -170,7 +176,7 @@ using namespace boost::numeric::odeint;
     x_vec.clear();
     times.clear();
     
-    near_identity ni(params.cp,params.cd,params.cl,params.eps);
+    near_identity ni(params->cp,params->cd,params->cl,params->eps);
     
     func->init(x0);
     
@@ -182,12 +188,12 @@ using namespace boost::numeric::odeint;
      typedef runge_kutta_cash_karp54< state_type > error_stepper_type;
     typedef controlled_runge_kutta< error_stepper_type > controlled_stepper_type;
     controlled_stepper_type controlled_stepper( 
-        default_error_checker< double , range_algebra , default_operations >( params.abs_err, params.rel_err, params.a_x, params.a_dxdt) );
+        default_error_checker< double , range_algebra , default_operations >( params->abs_err, params->rel_err, params->a_x, params->a_dxdt) );
 
 
 
     //[ equidistant observer calls with adaptive internal step size:
-    steps = integrate_const( controlled_stepper , controller , x0 , params.t0, params.tf, params.dt, push_back_state_and_time( x_vec , times ) );
+    steps = integrate_const( controlled_stepper , controller , x0 , params->t0, params->tf, params->dt, push_back_state_and_time( x_vec , times ) );
     
     }
     

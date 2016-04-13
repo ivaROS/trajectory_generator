@@ -58,7 +58,8 @@ public:
 TrajectoryGeneratorBridge();
 
 void updateParams();
-traj_params getDefaultParams();
+traj_params* getDefaultParams();
+traj_params copyDefaultParams();
 void setDefaultParams(traj_params &new_params);
 
 ni_trajectory* generate_trajectory(traj_func* trajpntr);
@@ -68,7 +69,7 @@ ni_trajectory* generate_trajectory(traj_func* trajpntr, const nav_msgs::Odometry
 ni_trajectory* generate_trajectory(traj_func* trajpntr, geometry_msgs::TransformStamped& curr_tf);
 
 ni_trajectory* run(traj_func* trajpntr, state_type& x0);
-
+ni_trajectory* run(traj_func* trajpntr, state_type& x0, traj_params* params);
 void generate_trajectory(ni_trajectory* trajectory);
 
 inline

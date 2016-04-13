@@ -144,8 +144,15 @@ ni_trajectory* TrajectoryGeneratorBridge::generate_trajectory(traj_func* trajpnt
 void TrajectoryGeneratorBridge::generate_trajectory(ni_trajectory* trajectory)
 {   //How long does the integration take? Get current time
     auto t1 = std::chrono::high_resolution_clock::now();
-
-    trajectory_gen.run(trajectory->trajpntr, trajectory->x0_, trajectory->x_vec, trajectory->times);  //, trajectory->params
+    
+    if(trajectory->params == NULL)
+    {
+      trajectory_gen.run(trajectory->trajpntr, trajectory->x0_, trajectory->x_vec, trajectory->times);
+    }
+    else
+    {
+      trajectory_gen.run(trajectory->trajpntr, trajectory->x0_, trajectory->x_vec, trajectory->times, trajectory->params);
+    }
     
     auto t2 = std::chrono::high_resolution_clock::now();
     std::chrono::duration<double, std::milli> fp_ms = t2 - t1;
@@ -160,9 +167,14 @@ ni_trajectory TrajectoryGeneratorBridge::generate_trajectory(geometry_msgs::Tran
 }
 */
 
-
 ni_trajectory* TrajectoryGeneratorBridge::run(traj_func* trajpntr, state_type& x0)
 {
+  return TrajectoryGeneratorBridge::run(trajpntr, x0, trajectory_gen.getDefaultParams());
+}
+
+ni_trajectory* TrajectoryGeneratorBridge::run(traj_func* trajpntr, state_type& x0, traj_params* params)
+{
+
     if(DEBUG)ROS_INFO_STREAM("Initial State: " << x0[near_identity::X_IND] << " " <<
     x0[near_identity::Y_IND] << " " <<
     x0[near_identity::THETA_IND]<< " " <<
@@ -241,9 +253,14 @@ void TrajectoryGeneratorBridge::updateParams()
 
 }
 
-traj_params TrajectoryGeneratorBridge::getDefaultParams()
+traj_params* TrajectoryGeneratorBridge::getDefaultParams()
 {
   return trajectory_gen.getDefaultParams();
+}
+
+traj_params TrajectoryGeneratorBridge::copyDefaultParams()
+{
+  return trajectory_gen.copyDefaultParams();
 }
 
 void TrajectoryGeneratorBridge::setDefaultParams(traj_params &new_params)
