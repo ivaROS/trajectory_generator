@@ -133,6 +133,8 @@ static double quaternionToYaw(geometry_msgs::Quaternion& quaternion);
 inline
 static const nav_msgs::OdometryPtr OdomFromState(state_type& state, double t, std_msgs::Header header);
 
+static ni_trajectory* getLongestTrajectory(std::vector<ni_trajectory*> valid_trajs);
+
 void publishPaths(ros::Publisher& pub, std::vector<ni_trajectory*>& trajs, size_t num_total_paths);
 
 

@@ -275,7 +275,22 @@ double TrajectoryGeneratorBridge::quaternionToYaw(geometry_msgs::Quaternion& qua
 
 
 
-
+ni_trajectory* TrajectoryGeneratorBridge::getLongestTrajectory(std::vector<ni_trajectory*> valid_trajs)
+{
+    size_t longest_length = 0;
+    ni_trajectory* longest_traj;
+    for(size_t i=0; i < valid_trajs.size(); i++)
+    {
+      size_t length = valid_trajs[i]->num_states();
+      if(length > longest_length)
+      {
+        longest_traj = valid_trajs[i];
+        longest_length = length;
+      }
+    }
+    
+    return longest_traj;
+}
 
 
 
