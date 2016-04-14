@@ -8,14 +8,12 @@
  */
 
 
-#include <iostream>
 #include <vector>
 
 #include <boost/numeric/odeint.hpp>
 
 #include "traj_generator.h"
-#include <chrono>
-#include <memory>
+
 
 
 
@@ -26,7 +24,7 @@
 class ni_controller {
 
     near_identity ni_;
-    traj_func* traj_;
+    traj_func* traj_;   //Will look into using reference to function 
     
 
 public:
@@ -85,93 +83,27 @@ traj_generator::traj_generator()
   cl_ = 100;
   eps_ = .01;
 
-  default_params_ = std::make_shared<traj_params>();
-  default_params_->tf=tf_;
-  default_params_->t0=t0_;
-  default_params_->dt=dt_;
-  default_params_->cp=cp_;
-  default_params_->cd=cd_;
-  default_params_->cl=cl_;
-  default_params_->eps=eps_;
-  default_params_->abs_err=abs_err_;
-  default_params_->rel_err=rel_err_;
-  default_params_->a_x=a_x_;
-  default_params_->a_dxdt=a_dxdt_;
+  default_params_ = (traj_params) { .tf=tf_, .t0=t0_, .dt=dt_, .cp=cp_, .cd=cd_, .cl=cl_, .eps=eps_, .abs_err=abs_err_, .rel_err=rel_err_, .a_x=a_x_, .a_dxdt=a_dxdt_};
   
 }
 
-traj_params_ptr traj_generator::getDefaultParams()
+traj_params traj_generator::getDefaultParams()
 {
   return default_params_; 
 }
 
-traj_params_ptr traj_generator::copyDefaultParams()
-{
-  return std::make_shared<traj_params>(default_params_);
-}
-
-void traj_generator::setDefaultParams(traj_params_ptr new_params)
+void traj_generator::setDefaultParams(traj_params &new_params)
 {
   default_params_ = new_params;
 }
-
-
-void traj_generator::setFunc(traj_func* func)
-{
-  trajectory_func_ = func;
-}
-
-
-size_t traj_generator::run(state_type &x0, std::vector<state_type> &x_vec, std::vector<double> &times)
-{
-    return traj_generator::run(x0, x_vec, times, default_params_);
-}
-
-size_t traj_generator::run(state_type &x0, std::vector<state_type> &x_vec, std::vector<double> &times, traj_params_ptr params)
-{
-using namespace boost::numeric::odeint;
-
-  //Lambda must never equal 0
-  if (x0[5] ==0)
-    return 0;
-  
-
-    size_t steps;
-
-    x_vec.clear();
-    times.clear();
-    
-    near_identity ni(params->cp,params->cd,params->cl,params->eps);
-    
-    trajectory_func_->init(x0);
-    
-    ni_controller controller(ni);
-    controller.setTrajFunc(trajectory_func_);
-  
-
-    {
-     typedef runge_kutta_cash_karp54< state_type > error_stepper_type;
-    typedef controlled_runge_kutta< error_stepper_type > controlled_stepper_type;
-    controlled_stepper_type controlled_stepper( 
-        default_error_checker< double , range_algebra , default_operations >( params->abs_err, params->rel_err, params->a_x, params->a_dxdt) );
-
-
-
-    //[ equidistant observer calls with adaptive internal step size:
-    steps = integrate_const( controlled_stepper , controller , x0 , params->t0, params->tf, params->dt, push_back_state_and_time( x_vec , times ) );
-    
-    }
-    
-    return steps;
-  
-}  
 
 size_t traj_generator::run(traj_func* func, state_type &x0, std::vector<state_type> &x_vec, std::vector<double> &times)
 {
   return traj_generator::run(func, x0, x_vec, times, default_params_);
 }
 
-size_t traj_generator::run(traj_func* func, state_type &x0, std::vector<state_type> &x_vec, std::vector<double> &times, traj_params_ptr params)
+//May also pass in func as reference...
+size_t traj_generator::run(traj_func* func, state_type &x0, std::vector<state_type> &x_vec, std::vector<double> &times, traj_params& params)
 {
 using namespace boost::numeric::odeint;
 
@@ -185,7 +117,7 @@ using namespace boost::numeric::odeint;
     x_vec.clear();
     times.clear();
     
-    near_identity ni(params->cp,params->cd,params->cl,params->eps);
+    near_identity ni(params.cp,params.cd,params.cl,params.eps);
     
     func->init(x0);
     
@@ -194,16 +126,12 @@ using namespace boost::numeric::odeint;
   
 
     {
-     typedef runge_kutta_cash_karp54< state_type > error_stepper_type;
-    typedef controlled_runge_kutta< error_stepper_type > controlled_stepper_type;
-    controlled_stepper_type controlled_stepper( 
-        default_error_checker< double , range_algebra , default_operations >( params->abs_err, params->rel_err, params->a_x, params->a_dxdt) );
+      typedef runge_kutta_cash_karp54< state_type > error_stepper_type;
+      typedef controlled_runge_kutta< error_stepper_type > controlled_stepper_type;
+      controlled_stepper_type controlled_stepper(default_error_checker< double , range_algebra , default_operations >( params.abs_err, params.rel_err, params.a_x, params.a_dxdt) );
 
-
-
-    //[ equidistant observer calls with adaptive internal step size:
-    steps = integrate_const( controlled_stepper , controller , x0 , params->t0, params->tf, params->dt, push_back_state_and_time( x_vec , times ) );
-    
+      //[ equidistant observer calls with adaptive internal step size:
+      steps = integrate_const( controlled_stepper , controller , x0 , params.t0, params.tf, params.dt, push_back_state_and_time( x_vec , times ) );
     }
     
     return steps;

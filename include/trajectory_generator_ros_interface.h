@@ -14,16 +14,16 @@
 #ifndef TRAJECTORY_GENERATOR_ROS_INTERFACE_H
 #define TRAJECTORY_GENERATOR_ROS_INTERFACE_H
 
+typedef std::shared_ptr<traj_params> traj_params_ptr;
 
 struct ni_trajectory
 {
 
     std::vector<state_type> x_vec;
     std::vector<double> times;
-    state_type x0_;
-    std::string frame_id = "";  //Note sure whether to include Frame at this level
+    state_type x0_;   //This will be the same for a number of trajectories; may want to replace with shared_ptr
     std_msgs::Header header;
-    traj_func* trajpntr;
+    traj_func* trajpntr;  /*The traj function is created elsewhere, but may need to persist beyond the life creating function. If anywhere, it 'belongs' to this struct. May want to use shared_ptr- it may be reused; actually, unique_ptr would be better. move it here */
     traj_params_ptr params;
     
     ni_trajectory()
@@ -57,18 +57,9 @@ public:
 TrajectoryGeneratorBridge();
 
 void updateParams();
-traj_params* getDefaultParams();
-traj_params copyDefaultParams();
+traj_params getDefaultParams();
 void setDefaultParams(traj_params_ptr new_params);
 
-ni_trajectory* generate_trajectory(traj_func* trajpntr);
-
-ni_trajectory* generate_trajectory(traj_func* trajpntr, const nav_msgs::OdometryPtr& curr_odom);
-//ni_trajectory generate_trajectory(const geometry_msgs::TransformStampedPtr curr_tf, traj_func* trajpntr);
-ni_trajectory* generate_trajectory(traj_func* trajpntr, geometry_msgs::TransformStamped& curr_tf);
-
-ni_trajectory* run(traj_func* trajpntr, state_type& x0);
-ni_trajectory* run(traj_func* trajpntr, state_type& x0, traj_params_ptr params);
 void generate_trajectory(ni_trajectory* trajectory);
 
 inline

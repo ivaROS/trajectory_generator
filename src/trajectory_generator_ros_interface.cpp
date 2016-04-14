@@ -38,11 +38,12 @@
         return trajectory_msg;
     }
     
+    //Not sure if this works; if it does, then the transforming function must not be
     trajectory_generator::trajectory_pointsPtr ni_trajectory::toTrajectoryMsgPtr ()
     {
       trajectory_generator::trajectory_pointsPtr msgPtr(new trajectory_generator::trajectory_points);
       msgPtr->points = ni_trajectory::toTrajectoryPointMsgs();
-      msgPtr->header.frame_id = frame_id;
+      msgPtr->header = header;
       
       return msgPtr;
     }
@@ -71,7 +72,7 @@
         {
             state_type state = x_vec[i];
             geometry_msgs::PoseStamped pose;
-            pose.header.frame_id = frame_id;
+            pose.header = header;
             
             pose.pose.position.x = state[near_identity::X_IND];
             pose.pose.position.y = state[near_identity::Y_IND];
@@ -118,28 +119,6 @@ TrajectoryGeneratorBridge::TrajectoryGeneratorBridge()
     robot_radius_ = .15;
 }
 
-ni_trajectory* TrajectoryGeneratorBridge::generate_trajectory(traj_func* trajpntr)
-{
-    state_type x0 = TrajectoryGeneratorBridge::initState();
-
-    
-    ni_trajectory* traj = TrajectoryGeneratorBridge::run(trajpntr, x0);
-    return traj;
-}
-
-ni_trajectory* TrajectoryGeneratorBridge::generate_trajectory(traj_func* trajpntr, const nav_msgs::OdometryPtr& curr_odom)
-{
-    state_type x0 = TrajectoryGeneratorBridge::initState();
-
-    TrajectoryGeneratorBridge::initState(x0,curr_odom);
-
-
-    
-    ni_trajectory* traj = TrajectoryGeneratorBridge::run(trajpntr, x0);
-    traj->frame_id = curr_odom->header.frame_id;
-    return traj;
-}
-    
 
 void TrajectoryGeneratorBridge::generate_trajectory(ni_trajectory* trajectory)
 {   //How long does the integration take? Get current time
@@ -151,7 +130,7 @@ void TrajectoryGeneratorBridge::generate_trajectory(ni_trajectory* trajectory)
     }
     else
     {
-      trajectory_gen.run(trajectory->trajpntr, trajectory->x0_, trajectory->x_vec, trajectory->times, trajectory->params);
+      trajectory_gen.run(trajectory->trajpntr, trajectory->x0_, trajectory->x_vec, trajectory->times, *trajectory->params);
     }
     
     auto t2 = std::chrono::high_resolution_clock::now();
@@ -159,64 +138,7 @@ void TrajectoryGeneratorBridge::generate_trajectory(ni_trajectory* trajectory)
     
     if(DEBUG)ROS_DEBUG_STREAM("Integration took " << fp_ms.count() << " ms\n");
 }
-/*
-ni_trajectory TrajectoryGeneratorBridge::generate_trajectory(geometry_msgs::TransformStamped curr_tf, traj_func* trajpntr)
-{
-    const geometry_msgs::TransformStampedPtr curr_tfPtr = geometry_msgs::TransformStampedPtr(new geometry_msgs::TransformStamped(curr_tf));
-    return TrajectoryGeneratorBridge::generate_trajectory(curr_tfPtr, trajpntr);
-}
-*/
 
-ni_trajectory* TrajectoryGeneratorBridge::run(traj_func* trajpntr, state_type& x0)
-{
-  return TrajectoryGeneratorBridge::run(trajpntr, x0, trajectory_gen.getDefaultParams());
-}
-
-ni_trajectory* TrajectoryGeneratorBridge::run(traj_func* trajpntr, state_type& x0, traj_params_ptr params)
-{
-
-    if(DEBUG)ROS_INFO_STREAM("Initial State: " << x0[near_identity::X_IND] << " " <<
-    x0[near_identity::Y_IND] << " " <<
-    x0[near_identity::THETA_IND]<< " " <<
-    x0[near_identity::V_IND]<< " " <<
-    x0[near_identity::W_IND]<< " " <<
-    x0[near_identity::LAMBDA_IND] << " " <<
-    x0[near_identity::XD_IND] << " " <<
-    x0[near_identity::YD_IND] << std::endl);
-    
-    TrajectoryGeneratorBridge::updateParams();
-    trajectory_gen.setFunc(trajpntr);
-    //[ Observer samples
-    std::vector<state_type> x_vec;
-    std::vector<double> times;
-    
-    std::size_t steps;
-
-
-    //How long does the integration take? Get current time
-    auto t1 = std::chrono::high_resolution_clock::now();
-
-    steps = trajectory_gen.run(x0, x_vec, times);
-
-
-    
-    //How long did it take? 
-    //Stop the clock before all of the printouts
-    auto t2 = std::chrono::high_resolution_clock::now();
-    std::chrono::duration<double, std::milli> fp_ms = t2 - t1;
-    if(DEBUG)ROS_DEBUG_STREAM("Integration took " << fp_ms.count() << " ms\n");
-
-
-
-    if(DEBUG)ROS_DEBUG_STREAM("const observer: "  << steps << " steps. final: " << '\t' << x0[0] << '\t' << x0[1]<< std::endl);
-
-    ni_trajectory*  traj = new ni_trajectory(x_vec, times);
-    //traj.print();
-    
-    //std::cout << traj_msgs[0] << std::endl;
-    
-    return traj;
-}
 
 void TrajectoryGeneratorBridge::publishPaths(ros::Publisher& pub, std::vector<ni_trajectory*>& trajs, size_t num_total_paths)
 {
@@ -253,19 +175,14 @@ void TrajectoryGeneratorBridge::updateParams()
 
 }
 
-traj_params_ptr TrajectoryGeneratorBridge::getDefaultParams()
+traj_params TrajectoryGeneratorBridge::getDefaultParams()
 {
   return trajectory_gen.getDefaultParams();
 }
 
-traj_params_ptr TrajectoryGeneratorBridge::copyDefaultParams()
-{
-  return trajectory_gen.copyDefaultParams();
-}
-
 void TrajectoryGeneratorBridge::setDefaultParams(traj_params_ptr new_params)
 {
-  trajectory_gen.setDefaultParams(new_params);
+  trajectory_gen.setDefaultParams(*new_params);
 }
 
 
