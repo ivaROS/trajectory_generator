@@ -15,7 +15,7 @@
 
 #include "traj_generator.h"
 #include <chrono>
-
+#include <memory>
 
 
 
@@ -85,23 +85,32 @@ traj_generator::traj_generator()
   cl_ = 100;
   eps_ = .01;
 
-  default_params_ = (traj_params) { .tf=tf_, .t0=t0_, .dt=dt_, .cp=cp_, .cd=cd_, .cl=cl_, .eps=eps_, .abs_err=abs_err_, .rel_err=rel_err_, .a_x=a_x_, .a_dxdt=a_dxdt_};
+  default_params_ = std::make_shared<traj_params>();
+  default_params_->tf=tf_;
+  default_params_->t0=t0_;
+  default_params_->dt=dt_;
+  default_params_->cp=cp_;
+  default_params_->cd=cd_;
+  default_params_->cl=cl_;
+  default_params_->eps=eps_;
+  default_params_->abs_err=abs_err_;
+  default_params_->rel_err=rel_err_;
+  default_params_->a_x=a_x_;
+  default_params_->a_dxdt=a_dxdt_;
   
 }
 
-traj_params* traj_generator::getDefaultParams()
+traj_params_ptr traj_generator::getDefaultParams()
 {
-  //traj_params param_copy(default_params_);
-  return &default_params_; 
-}
-
-traj_params traj_generator::copyDefaultParams()
-{
-  //traj_params param_copy(default_params_);
   return default_params_; 
 }
 
-void traj_generator::setDefaultParams(traj_params &new_params)
+traj_params_ptr traj_generator::copyDefaultParams()
+{
+  return std::make_shared<traj_params>(default_params_);
+}
+
+void traj_generator::setDefaultParams(traj_params_ptr new_params)
 {
   default_params_ = new_params;
 }
@@ -115,10 +124,10 @@ void traj_generator::setFunc(traj_func* func)
 
 size_t traj_generator::run(state_type &x0, std::vector<state_type> &x_vec, std::vector<double> &times)
 {
-    return traj_generator::run(x0, x_vec, times, &default_params_);
+    return traj_generator::run(x0, x_vec, times, default_params_);
 }
 
-size_t traj_generator::run(state_type &x0, std::vector<state_type> &x_vec, std::vector<double> &times, traj_params *params)
+size_t traj_generator::run(state_type &x0, std::vector<state_type> &x_vec, std::vector<double> &times, traj_params_ptr params)
 {
 using namespace boost::numeric::odeint;
 
@@ -159,10 +168,10 @@ using namespace boost::numeric::odeint;
 
 size_t traj_generator::run(traj_func* func, state_type &x0, std::vector<state_type> &x_vec, std::vector<double> &times)
 {
-  return traj_generator::run(func, x0, x_vec, times, &default_params_);
+  return traj_generator::run(func, x0, x_vec, times, default_params_);
 }
 
-size_t traj_generator::run(traj_func* func, state_type &x0, std::vector<state_type> &x_vec, std::vector<double> &times, traj_params *params)
+size_t traj_generator::run(traj_func* func, state_type &x0, std::vector<state_type> &x_vec, std::vector<double> &times, traj_params_ptr params)
 {
 using namespace boost::numeric::odeint;
 

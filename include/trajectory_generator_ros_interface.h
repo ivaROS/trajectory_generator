@@ -15,7 +15,6 @@
 #define TRAJECTORY_GENERATOR_ROS_INTERFACE_H
 
 
-
 struct ni_trajectory
 {
 
@@ -25,7 +24,7 @@ struct ni_trajectory
     std::string frame_id = "";  //Note sure whether to include Frame at this level
     std_msgs::Header header;
     traj_func* trajpntr;
-    traj_params* params;
+    traj_params_ptr params;
     
     ni_trajectory()
     {
@@ -60,7 +59,7 @@ TrajectoryGeneratorBridge();
 void updateParams();
 traj_params* getDefaultParams();
 traj_params copyDefaultParams();
-void setDefaultParams(traj_params &new_params);
+void setDefaultParams(traj_params_ptr new_params);
 
 ni_trajectory* generate_trajectory(traj_func* trajpntr);
 
@@ -69,7 +68,7 @@ ni_trajectory* generate_trajectory(traj_func* trajpntr, const nav_msgs::Odometry
 ni_trajectory* generate_trajectory(traj_func* trajpntr, geometry_msgs::TransformStamped& curr_tf);
 
 ni_trajectory* run(traj_func* trajpntr, state_type& x0);
-ni_trajectory* run(traj_func* trajpntr, state_type& x0, traj_params* params);
+ni_trajectory* run(traj_func* trajpntr, state_type& x0, traj_params_ptr params);
 void generate_trajectory(ni_trajectory* trajectory);
 
 inline

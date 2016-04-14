@@ -172,7 +172,7 @@ ni_trajectory* TrajectoryGeneratorBridge::run(traj_func* trajpntr, state_type& x
   return TrajectoryGeneratorBridge::run(trajpntr, x0, trajectory_gen.getDefaultParams());
 }
 
-ni_trajectory* TrajectoryGeneratorBridge::run(traj_func* trajpntr, state_type& x0, traj_params* params)
+ni_trajectory* TrajectoryGeneratorBridge::run(traj_func* trajpntr, state_type& x0, traj_params_ptr params)
 {
 
     if(DEBUG)ROS_INFO_STREAM("Initial State: " << x0[near_identity::X_IND] << " " <<
@@ -253,17 +253,17 @@ void TrajectoryGeneratorBridge::updateParams()
 
 }
 
-traj_params* TrajectoryGeneratorBridge::getDefaultParams()
+traj_params_ptr TrajectoryGeneratorBridge::getDefaultParams()
 {
   return trajectory_gen.getDefaultParams();
 }
 
-traj_params TrajectoryGeneratorBridge::copyDefaultParams()
+traj_params_ptr TrajectoryGeneratorBridge::copyDefaultParams()
 {
   return trajectory_gen.copyDefaultParams();
 }
 
-void TrajectoryGeneratorBridge::setDefaultParams(traj_params &new_params)
+void TrajectoryGeneratorBridge::setDefaultParams(traj_params_ptr new_params)
 {
   trajectory_gen.setDefaultParams(new_params);
 }
