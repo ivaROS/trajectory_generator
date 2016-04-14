@@ -50,7 +50,7 @@ class TrajectoryGeneratorBridge
     traj_generator trajectory_gen;
     
     double robot_radius_;
-    
+    std::string name_="TrajectoryGeneratorBridge";
 
 public:
 

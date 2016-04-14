@@ -136,7 +136,7 @@ void TrajectoryGeneratorBridge::generate_trajectory(ni_trajectory* trajectory)
     auto t2 = std::chrono::high_resolution_clock::now();
     std::chrono::duration<double, std::milli> fp_ms = t2 - t1;
     
-    if(DEBUG)ROS_DEBUG_STREAM("Integration took " << fp_ms.count() << " ms\n");
+    ROS_DEBUG_STREAM_NAMED(name_, "Integration took " << fp_ms.count() << " ms\n");
 }
 
 
