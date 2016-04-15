@@ -104,6 +104,8 @@
     {
         geometry_msgs::PointStamped point;
         point.point = getPoint(i);
+        point.header = header;
+        point.header.stamp += ros::Duration(times[i]);
         
         return point;
     }
