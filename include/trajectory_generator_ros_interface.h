@@ -90,7 +90,7 @@ void initState(state_type& x0)
 }
 
 inline
-void initState(state_type& x0, const nav_msgs::OdometryPtr& curr_odom)
+void initState(state_type& x0, const nav_msgs::Odometry::ConstPtr& curr_odom)
 {
     double vx = curr_odom->twist.twist.linear.x;
     double vy = curr_odom->twist.twist.linear.y;
@@ -102,7 +102,7 @@ void initState(state_type& x0, const nav_msgs::OdometryPtr& curr_odom)
 }
 
 inline
-void initState(ni_trajectory_ptr& traj, const nav_msgs::OdometryPtr& curr_odom)
+void initState(ni_trajectory_ptr& traj, const nav_msgs::Odometry::ConstPtr& curr_odom)
 {
     initState(traj->x0_, curr_odom);
     
@@ -117,7 +117,7 @@ state_type initState(T& source)
     return x0;
 }
 
-template<const nav_msgs::OdometryPtr&> state_type initState(const nav_msgs::OdometryPtr& curr_odom);
+template<const nav_msgs::Odometry::ConstPtr&> state_type initState(const nav_msgs::Odometry::ConstPtr& curr_odom);
 
 inline
 static geometry_msgs::Quaternion yawToQuaternion(double yaw);
