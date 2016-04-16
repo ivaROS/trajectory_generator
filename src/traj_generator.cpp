@@ -97,13 +97,12 @@ void traj_generator::setDefaultParams(traj_params &new_params)
   default_params_ = new_params;
 }
 
-size_t traj_generator::run(traj_func* func, state_type &x0, std::vector<state_type> &x_vec, std::vector<double> &times)
+size_t traj_generator::run(traj_func& func, state_type &x0, std::vector<state_type> &x_vec, std::vector<double> &times)
 {
   return traj_generator::run(func, x0, x_vec, times, default_params_);
 }
 
-//May also pass in func as reference...
-size_t traj_generator::run(traj_func* func, state_type &x0, std::vector<state_type> &x_vec, std::vector<double> &times, traj_params& params)
+size_t traj_generator::run(traj_func& func, state_type &x0, std::vector<state_type> &x_vec, std::vector<double> &times, traj_params& params)
 {
 using namespace boost::numeric::odeint;
 
@@ -119,10 +118,10 @@ using namespace boost::numeric::odeint;
     
     near_identity ni(params.cp,params.cd,params.cl,params.eps);
     
-    func->init(x0);
+    func.init(x0);
     
     ni_controller controller(ni);
-    controller.setTrajFunc(func);
+    controller.setTrajFunc(&func);
   
 
     {

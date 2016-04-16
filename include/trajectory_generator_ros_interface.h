@@ -9,12 +9,14 @@
 #include <geometry_msgs/Quaternion.h>
 #include <geometry_msgs/PointStamped.h>
 #include <geometry_msgs/Point.h>
-//#include "tf2_trajectory.h"
+
 
 #ifndef TRAJECTORY_GENERATOR_ROS_INTERFACE_H
 #define TRAJECTORY_GENERATOR_ROS_INTERFACE_H
 
 typedef std::shared_ptr<traj_params> traj_params_ptr;
+typedef std::shared_ptr<traj_func> traj_func_ptr;
+
 
 struct ni_trajectory
 {
@@ -23,7 +25,7 @@ struct ni_trajectory
     std::vector<double> times;
     state_type x0_;   //This will be the same for a number of trajectories; may want to replace with shared_ptr
     std_msgs::Header header;
-    traj_func* trajpntr;  /*The traj function is created elsewhere, but may need to persist beyond the life creating function. If anywhere, it 'belongs' to this struct. May want to use shared_ptr- it may be reused; actually, unique_ptr would be better. move it here */
+    traj_func_ptr trajpntr;
     traj_params_ptr params;
     
     ni_trajectory()
@@ -44,6 +46,8 @@ struct ni_trajectory
 
 };
 
+typedef std::shared_ptr<ni_trajectory> ni_trajectory_ptr;
+
 class TrajectoryGeneratorBridge
 {
 
@@ -58,9 +62,9 @@ TrajectoryGeneratorBridge();
 
 void updateParams();
 traj_params getDefaultParams();
-void setDefaultParams(traj_params_ptr new_params);
+void setDefaultParams(traj_params_ptr& new_params);
 
-void generate_trajectory(ni_trajectory* trajectory);
+void generate_trajectory(ni_trajectory_ptr trajectory);
 
 inline
 state_type initState()
@@ -98,7 +102,7 @@ void initState(state_type& x0, const nav_msgs::OdometryPtr& curr_odom)
 }
 
 inline
-void initState(ni_trajectory* traj, const nav_msgs::OdometryPtr& curr_odom)
+void initState(ni_trajectory_ptr& traj, const nav_msgs::OdometryPtr& curr_odom)
 {
     initState(traj->x0_, curr_odom);
     
@@ -122,11 +126,11 @@ inline
 static double quaternionToYaw(geometry_msgs::Quaternion& quaternion);
 
 inline
-static const nav_msgs::OdometryPtr OdomFromState(state_type& state, double t, std_msgs::Header header);
+static const nav_msgs::OdometryPtr OdomFromState(state_type& state, double t, std_msgs::Header& header);
 
-static ni_trajectory* getLongestTrajectory(std::vector<ni_trajectory*> valid_trajs);
+static ni_trajectory_ptr getLongestTrajectory(std::vector<ni_trajectory_ptr>& valid_trajs);
 
-void publishPaths(ros::Publisher& pub, std::vector<ni_trajectory*>& trajs, size_t num_total_paths);
+void publishPaths(ros::Publisher& pub, std::vector<ni_trajectory_ptr>& trajs, size_t num_total_paths);
 
 
 };

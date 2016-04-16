@@ -122,17 +122,17 @@ TrajectoryGeneratorBridge::TrajectoryGeneratorBridge()
 }
 
 
-void TrajectoryGeneratorBridge::generate_trajectory(ni_trajectory* trajectory)
+void TrajectoryGeneratorBridge::generate_trajectory(ni_trajectory_ptr trajectory)
 {   //How long does the integration take? Get current time
     auto t1 = std::chrono::high_resolution_clock::now();
     
     if(trajectory->params == NULL)
     {
-      trajectory_gen.run(trajectory->trajpntr, trajectory->x0_, trajectory->x_vec, trajectory->times);
+      trajectory_gen.run(*trajectory->trajpntr, trajectory->x0_, trajectory->x_vec, trajectory->times);
     }
     else
     {
-      trajectory_gen.run(trajectory->trajpntr, trajectory->x0_, trajectory->x_vec, trajectory->times, *trajectory->params);
+      trajectory_gen.run(*trajectory->trajpntr, trajectory->x0_, trajectory->x_vec, trajectory->times, *trajectory->params);
     }
     
     auto t2 = std::chrono::high_resolution_clock::now();
@@ -142,7 +142,7 @@ void TrajectoryGeneratorBridge::generate_trajectory(ni_trajectory* trajectory)
 }
 
 
-void TrajectoryGeneratorBridge::publishPaths(ros::Publisher& pub, std::vector<ni_trajectory*>& trajs, size_t num_total_paths)
+void TrajectoryGeneratorBridge::publishPaths(ros::Publisher& pub, std::vector<ni_trajectory_ptr>& trajs, size_t num_total_paths)
 {
     for(size_t i = 0; i < num_total_paths; i++)
     {
@@ -182,7 +182,7 @@ traj_params TrajectoryGeneratorBridge::getDefaultParams()
   return trajectory_gen.getDefaultParams();
 }
 
-void TrajectoryGeneratorBridge::setDefaultParams(traj_params_ptr new_params)
+void TrajectoryGeneratorBridge::setDefaultParams(traj_params_ptr& new_params)
 {
   trajectory_gen.setDefaultParams(*new_params);
 }
@@ -211,10 +211,10 @@ double TrajectoryGeneratorBridge::quaternionToYaw(geometry_msgs::Quaternion& qua
 
 
 
-ni_trajectory* TrajectoryGeneratorBridge::getLongestTrajectory(std::vector<ni_trajectory*> valid_trajs)
+ni_trajectory_ptr TrajectoryGeneratorBridge::getLongestTrajectory(std::vector<ni_trajectory_ptr>& valid_trajs)
 {
     size_t longest_length = 0;
-    ni_trajectory* longest_traj;
+    ni_trajectory_ptr longest_traj;
     for(size_t i=0; i < valid_trajs.size(); i++)
     {
       size_t length = valid_trajs[i]->num_states();
@@ -232,7 +232,7 @@ ni_trajectory* TrajectoryGeneratorBridge::getLongestTrajectory(std::vector<ni_tr
 
 
 
-const nav_msgs::OdometryPtr TrajectoryGeneratorBridge::OdomFromState(state_type& state, double t, std_msgs::Header header)
+const nav_msgs::OdometryPtr TrajectoryGeneratorBridge::OdomFromState(state_type& state, double t, std_msgs::Header& header)
 {
     nav_msgs::OdometryPtr odom;
     
