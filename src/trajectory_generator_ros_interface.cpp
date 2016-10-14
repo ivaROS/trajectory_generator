@@ -228,6 +228,30 @@ ni_trajectory_ptr TrajectoryGeneratorBridge::getLongestTrajectory(std::vector<ni
     return longest_traj;
 }
 
+ni_trajectory_ptr TrajectoryGeneratorBridge::getCenterLongestTrajectory(std::vector<ni_trajectory_ptr>& valid_trajs)
+{
+    std::vector<ni_trajectory_ptr> longest_trajs;
+    
+    size_t longest_length = 0;
+    for(size_t i=0; i < valid_trajs.size(); i++)
+    {
+      size_t length = valid_trajs[i]->num_states();
+      if(length > longest_length)
+      {
+        longest_trajs.clear();
+        longest_trajs.push_back(valid_trajs[i]);
+        longest_length = length;
+      }
+      else if(length == longest_length)
+      {
+        longest_trajs.push_back(valid_trajs[i]);
+      }
+    }
+    
+    ni_trajectory_ptr longest_traj = longest_trajs[longest_trajs.size()/2];
+    
+    return longest_traj;
+}
 
 
 
