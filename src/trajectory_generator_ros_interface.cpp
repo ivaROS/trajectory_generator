@@ -133,12 +133,10 @@
     
 
 
-TrajectoryGeneratorBridge::TrajectoryGeneratorBridge()
+TrajectoryGeneratorBridge::TrajectoryGeneratorBridge() :
+trajectory_gen()  //Another option is to use a smart pointer
 {
-
-    traj_generator trajg;
-    trajectory_gen = trajg;
-    robot_radius_ = .15;
+    robot_radius_ = .15;  //only used to initialize lambda; maybe there is a better way (to initialize it)? Definitely should pass in robot radius if it is needed
 }
 
 
@@ -171,8 +169,10 @@ void TrajectoryGeneratorBridge::publishPaths(ros::Publisher& pub, std::vector<ni
             path = trajs[i]->toPathMsg();
         else
         {
+            /* This is just a hack to ensure that the expected number of paths is sent at each pass, so that the rviz queue contains only 
+            paths from one pass. It is also the only reason 'odom_frame_id_' is needed. A better solution would be a custom rviz plugin and message that contains all of the paths in one. */
             path = nav_msgs::PathPtr(new nav_msgs::Path);
-            path->header.frame_id = "odom";
+            path->header.frame_id = odom_frame_id_;
         }
         pub.publish(path);
     }
@@ -181,19 +181,7 @@ void TrajectoryGeneratorBridge::publishPaths(ros::Publisher& pub, std::vector<ni
 
 void TrajectoryGeneratorBridge::updateParams()
 {
-/*
-    traj_params params = trajectory_gen.getDefaultParams();
-    
-    std::string key;
-    double tf;
-    
-    if(ros::param::search("tf", key))
-    {
-        ros::param::get(key, tf); 
-        params.tf = tf;
-    }
 
-*/
 
 }
 

@@ -54,6 +54,7 @@ class TrajectoryGeneratorBridge
 {
 
     traj_generator trajectory_gen;
+    std::string odom_frame_id_ = "odom";
     
     double robot_radius_;
     std::string name_="TrajectoryGeneratorBridge";
