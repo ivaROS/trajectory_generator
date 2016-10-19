@@ -23,7 +23,7 @@ struct ni_trajectory
 
     std::vector<state_type> x_vec;
     std::vector<double> times;
-    state_type x0_;   //This will be the same for a number of trajectories; may want to replace with shared_ptr
+    state_type x0_;   //This will be the same for a number of trajectories; may want to replace with shared_ptr. On the other hand, it is a small structure, and could be passed by registers, which would be faster than  resolving the reference...
     std_msgs::Header header;
     traj_func_ptr trajpntr;
     traj_params_ptr params;
@@ -38,6 +38,8 @@ struct ni_trajectory
     trajectory_generator::trajectory_points toTrajectoryMsg ();
     trajectory_generator::trajectory_pointsPtr toTrajectoryMsgPtr ();
     std::vector<trajectory_generator::trajectory_point> toTrajectoryPointMsgs();
+    
+    nav_msgs::PathPtr getDesiredPathMsg();
     nav_msgs::PathPtr toPathMsg();
     void print();
     virtual size_t num_states();

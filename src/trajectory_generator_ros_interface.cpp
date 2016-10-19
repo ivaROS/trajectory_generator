@@ -86,6 +86,26 @@
         return path_msg;
     }
     
+    nav_msgs::PathPtr ni_trajectory::getDesiredPathMsg()
+    {
+        nav_msgs::PathPtr path_msg(new nav_msgs::Path);
+        path_msg->header = header;
+        
+        for(size_t i=0; i < this->num_states(); i++)
+        {
+            state_type state = x_vec[i];
+            geometry_msgs::PoseStamped pose;
+            pose.header = header;
+            
+            pose.pose.position.x = state[near_identity::XD_IND];
+            pose.pose.position.y = state[near_identity::YD_IND];
+
+            path_msg->poses.push_back(pose);
+        }
+        
+        return path_msg;
+    }
+    
     size_t ni_trajectory::num_states()
     {
         return x_vec.size();
