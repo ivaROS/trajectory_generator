@@ -39,7 +39,7 @@ public:
 struct traj_params {
 
 public:
-    double tf,t0,dt,cp,cd,cl,eps,abs_err,rel_err,a_x,a_dxdt;
+    double tf,t0,dt,cp,cd,cl,eps,abs_err,rel_err,a_x,a_dxdt,v_max,w_max,a_max,w_dot_max;
     
     };
 
@@ -61,11 +61,6 @@ class traj_generator {
   private:
   
   //ni_controller controller_;
-  
-  double abs_err_, rel_err_, a_x_, a_dxdt_;
-  
-  double t0_, tf_, dt_;
-  double cp_, cd_, cl_, eps_;
   
   traj_params default_params_;
 

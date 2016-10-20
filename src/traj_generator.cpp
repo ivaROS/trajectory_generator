@@ -69,21 +69,37 @@ class push_back_state_and_time
 traj_generator::traj_generator()
 {
 
- abs_err_ = 1.0e-10;
- rel_err_ = 1.0e-6;
- a_x_ = 1.0;
- a_dxdt_ = 1.0;
-   
-  t0_ = 0.0;
-  tf_ = 5.0;
-  dt_ = .1;
+  double abs_err, rel_err, a_x, a_dxdt;
   
-  cp_ = 100;
-  cd_ = 100;
-  cl_ = 100;
-  eps_ = .01;
+  double t0, tf, dt;
+  double cp, cd, cl, eps;
+  
+  double v_max, w_max, a_max, w_dot_max;
+  
+  abs_err = 1.0e-10;
+  rel_err = 1.0e-6;
+  a_x = 1.0;
+  a_dxdt = 1.0;
+   
+  t0 = 0.0;
+  tf = 5.0;
+  dt = .1;
+  
+  cp = 100;
+  cd = 100;
+  cl = 100;
+  eps = .01;
+  
+  v_max = std::numeric_limits<double>::infinity();
+  w_max = std::numeric_limits<double>::infinity();
+  a_max = std::numeric_limits<double>::infinity();
+  w_dot_max = std::numeric_limits<double>::infinity();
 
-  default_params_ = (traj_params) { .tf=tf_, .t0=t0_, .dt=dt_, .cp=cp_, .cd=cd_, .cl=cl_, .eps=eps_, .abs_err=abs_err_, .rel_err=rel_err_, .a_x=a_x_, .a_dxdt=a_dxdt_};
+  default_params_ = (traj_params) 
+  { 
+    .tf=tf, .t0=t0, .dt=dt, .cp=cp, .cd=cd, .cl=cl, .eps=eps, .abs_err=abs_err, .rel_err=rel_err, 
+    .a_x=a_x, .a_dxdt=a_dxdt, .v_max=v_max, .w_max=w_max, .a_max=a_max,.w_dot_max=w_dot_max
+  };
   
 }
 
