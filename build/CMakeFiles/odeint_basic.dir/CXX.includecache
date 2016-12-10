@@ -1,0 +1,16 @@
+#IncludeRegexLine: ^[ 	]*#[ 	]*(include|import)[ 	]*[<"]([^">]+)([">])
+
+#IncludeRegexScan: ^.*$
+
+#IncludeRegexComplain: ^$
+
+#IncludeRegexTransform: 
+
+/home/yipuzhao/ros_workspace/package_dir/trajectory_generator/src/odeint_basic.cpp
+iostream
+-
+vector
+-
+boost/numeric/odeint.hpp
+-
+
