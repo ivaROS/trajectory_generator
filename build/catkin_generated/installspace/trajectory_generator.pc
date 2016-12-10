@@ -1,8 +1,0 @@
-prefix=/usr/local
-
-Name: trajectory_generator
-Description: Description of trajectory_generator
-Version: 0.0.0
-Cflags: -I/usr/local/include
-Libs: -L/usr/local/lib -ltraj_generator -ltrajectory_generator_ros_interface
-Requires: message_runtime

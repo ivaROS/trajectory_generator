@@ -1,8 +1,0 @@
-prefix=/home/yipuzhao/ros_workspace/package_dir/trajectory_generator/build/devel
-
-Name: trajectory_generator
-Description: Description of trajectory_generator
-Version: 0.0.0
-Cflags: -I/home/yipuzhao/ros_workspace/package_dir/trajectory_generator/build/devel/include -I/home/yipuzhao/ros_workspace/package_dir/trajectory_generator/include
-Libs: -L/home/yipuzhao/ros_workspace/package_dir/trajectory_generator/build/devel/lib -ltraj_generator -ltrajectory_generator_ros_interface
-Requires: message_runtime
