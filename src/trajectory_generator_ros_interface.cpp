@@ -159,7 +159,7 @@ void TrajectoryGeneratorBridge::generate_trajectory(ni_trajectory_ptr trajectory
 }
 
 /* My custom rviz display removes much of the original purpose of this. Another issue is having pointers to pips_trajectories */
-void TrajectoryGeneratorBridge::publishPaths(ros::Publisher& pub, std::vector<ni_trajectory_ptr>& trajs)
+void TrajectoryGeneratorBridge::publishPaths(const ros::Publisher& pub, const std::vector<ni_trajectory_ptr>& trajs)
 {
   if(pub.getNumSubscribers() > 0)
    {
@@ -177,7 +177,7 @@ void TrajectoryGeneratorBridge::publishPaths(ros::Publisher& pub, std::vector<ni
 
 }
 
-void TrajectoryGeneratorBridge::publishDesiredPaths(ros::Publisher& pub, std::vector<ni_trajectory_ptr>& trajs)
+void TrajectoryGeneratorBridge::publishDesiredPaths(const ros::Publisher& pub, const std::vector<ni_trajectory_ptr>& trajs)
 {
   if(pub.getNumSubscribers() > 0)
    {
@@ -212,14 +212,14 @@ void TrajectoryGeneratorBridge::setDefaultParams(traj_params_ptr& new_params)
 }
 
 
-geometry_msgs::Quaternion TrajectoryGeneratorBridge::yawToQuaternion(double yaw)
+geometry_msgs::Quaternion TrajectoryGeneratorBridge::yawToQuaternion(const double yaw)
 {
     double roll = 0;
     double pitch = 0;
     return tf::createQuaternionMsgFromRollPitchYaw(roll, pitch, yaw);
 }
 
-double TrajectoryGeneratorBridge::quaternionToYaw(geometry_msgs::Quaternion& quaternion)
+double TrajectoryGeneratorBridge::quaternionToYaw(const geometry_msgs::Quaternion& quaternion)
 {
     // the incoming geometry_msgs::Quaternion is transformed to a tf::Quaterion
     tf::Quaternion quat;
@@ -235,7 +235,7 @@ double TrajectoryGeneratorBridge::quaternionToYaw(geometry_msgs::Quaternion& qua
 
 
 
-ni_trajectory_ptr TrajectoryGeneratorBridge::getLongestTrajectory(std::vector<ni_trajectory_ptr>& valid_trajs)
+ni_trajectory_ptr TrajectoryGeneratorBridge::getLongestTrajectory(const std::vector<ni_trajectory_ptr>& valid_trajs)
 {
     size_t longest_length = 0;
     ni_trajectory_ptr longest_traj;
@@ -252,7 +252,7 @@ ni_trajectory_ptr TrajectoryGeneratorBridge::getLongestTrajectory(std::vector<ni
     return longest_traj;
 }
 
-ni_trajectory_ptr TrajectoryGeneratorBridge::getCenterLongestTrajectory(std::vector<ni_trajectory_ptr>& valid_trajs)
+ni_trajectory_ptr TrajectoryGeneratorBridge::getCenterLongestTrajectory(const std::vector<ni_trajectory_ptr>& valid_trajs)
 {
     std::vector<ni_trajectory_ptr> longest_trajs;
     
@@ -280,7 +280,7 @@ ni_trajectory_ptr TrajectoryGeneratorBridge::getCenterLongestTrajectory(std::vec
 
 
 
-const nav_msgs::OdometryPtr TrajectoryGeneratorBridge::OdomFromState(state_type& state, double t, std_msgs::Header& header)
+const nav_msgs::OdometryPtr TrajectoryGeneratorBridge::OdomFromState(const state_type& state, double t, const std_msgs::Header& header)
 {
     nav_msgs::OdometryPtr odom;
     

@@ -2,6 +2,7 @@
 #include <chrono>
 #include <trajectory_generator/trajectory_point.h>
 #include <trajectory_generator/trajectory_points.h>
+#include <pips_msgs/PathArray.h>
 #include <ros/ros.h>
 #include <nav_msgs/Odometry.h>
 #include <nav_msgs/Path.h>
@@ -123,19 +124,19 @@ state_type initState(T& source)
 template<const nav_msgs::Odometry::ConstPtr&> state_type initState(const nav_msgs::Odometry::ConstPtr& curr_odom);
 
 inline
-static geometry_msgs::Quaternion yawToQuaternion(double yaw);
+static geometry_msgs::Quaternion yawToQuaternion(const double yaw);
 
 inline
-static double quaternionToYaw(geometry_msgs::Quaternion& quaternion);
+static double quaternionToYaw(const geometry_msgs::Quaternion& quaternion);
 
 inline
-static const nav_msgs::OdometryPtr OdomFromState(state_type& state, double t, std_msgs::Header& header);
+static const nav_msgs::OdometryPtr OdomFromState(const state_type& state, double t, const std_msgs::Header& header);
 
-static ni_trajectory_ptr getLongestTrajectory(std::vector<ni_trajectory_ptr>& valid_trajs);
-static ni_trajectory_ptr getCenterLongestTrajectory(std::vector<ni_trajectory_ptr>& valid_trajs);
+static ni_trajectory_ptr getLongestTrajectory(const std::vector<ni_trajectory_ptr>& valid_trajs);
+static ni_trajectory_ptr getCenterLongestTrajectory(const std::vector<ni_trajectory_ptr>& valid_trajs);
 
-void publishPaths(ros::Publisher& pub, std::vector<ni_trajectory_ptr>& trajs);
-void publishDesiredPaths(ros::Publisher& pub, std::vector<ni_trajectory_ptr>& trajs);
+static void publishPaths(const ros::Publisher& pub, const std::vector<ni_trajectory_ptr>& trajs);
+static void publishDesiredPaths(const ros::Publisher& pub, const std::vector<ni_trajectory_ptr>& trajs);
 
 };
 
