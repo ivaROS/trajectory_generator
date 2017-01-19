@@ -99,7 +99,7 @@ generate_messages(
 catkin_package(
   INCLUDE_DIRS include
   LIBRARIES traj_generator trajectory_generator_ros_interface
-  CATKIN_DEPENDS  message_runtime
+  CATKIN_DEPENDS  message_runtime pips_msgs
 #  DEPENDS system_lib
 )
 

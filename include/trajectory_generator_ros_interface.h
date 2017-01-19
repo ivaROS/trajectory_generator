@@ -134,8 +134,8 @@ static const nav_msgs::OdometryPtr OdomFromState(state_type& state, double t, st
 static ni_trajectory_ptr getLongestTrajectory(std::vector<ni_trajectory_ptr>& valid_trajs);
 static ni_trajectory_ptr getCenterLongestTrajectory(std::vector<ni_trajectory_ptr>& valid_trajs);
 
-void publishPaths(ros::Publisher& pub, std::vector<ni_trajectory_ptr>& trajs, size_t num_total_paths);
-
+void publishPaths(ros::Publisher& pub, std::vector<ni_trajectory_ptr>& trajs);
+void publishDesiredPaths(ros::Publisher& pub, std::vector<ni_trajectory_ptr>& trajs);
 
 };
 

@@ -5,8 +5,7 @@
 
 #include <iostream>
 #include "trajectory_generator_ros_interface.h"
-
-#define DEBUG false
+#include <pips_msgs/PathArray.h>
 
     std::vector<trajectory_generator::trajectory_point> ni_trajectory::toTrajectoryPointMsgs()
     {
@@ -159,23 +158,40 @@ void TrajectoryGeneratorBridge::generate_trajectory(ni_trajectory_ptr trajectory
     ROS_DEBUG_STREAM_NAMED(name_, "Integration took " << fp_ms.count() << " ms\n");
 }
 
-
-void TrajectoryGeneratorBridge::publishPaths(ros::Publisher& pub, std::vector<ni_trajectory_ptr>& trajs, size_t num_total_paths)
+/* My custom rviz display removes much of the original purpose of this. Another issue is having pointers to pips_trajectories */
+void TrajectoryGeneratorBridge::publishPaths(ros::Publisher& pub, std::vector<ni_trajectory_ptr>& trajs)
 {
-    for(size_t i = 0; i < num_total_paths; i++)
+  if(pub.getNumSubscribers() > 0)
+   {
+    if(trajs.size() > 0)
     {
-        nav_msgs::PathPtr path;
-        if(i < trajs.size())
-            path = trajs[i]->toPathMsg();
-        else
-        {
-            /* This is just a hack to ensure that the expected number of paths is sent at each pass, so that the rviz queue contains only 
-            paths from one pass. It is also the only reason 'odom_frame_id_' is needed. A better solution would be a custom rviz plugin and message that contains all of the paths in one. */
-            path = nav_msgs::PathPtr(new nav_msgs::Path);
-            path->header.frame_id = odom_frame_id_;
-        }
-        pub.publish(path);
+      pips_msgs::PathArray::Ptr pathArray(new pips_msgs::PathArray);
+      for(size_t i = 0; i < trajs.size(); i++)
+      {
+        pathArray->paths.push_back(*trajs[i]->toPathMsg());
+      }
+      pathArray->header = pathArray->paths[0].header;
+      pub.publish(pathArray);
     }
+  }
+
+}
+
+void TrajectoryGeneratorBridge::publishDesiredPaths(ros::Publisher& pub, std::vector<ni_trajectory_ptr>& trajs)
+{
+  if(pub.getNumSubscribers() > 0)
+   {
+    if(trajs.size() > 0)
+    {
+      pips_msgs::PathArray::Ptr pathArray(new pips_msgs::PathArray);
+      for(size_t i = 0; i < trajs.size(); i++)
+      {
+        pathArray->paths.push_back(*trajs[i]->getDesiredPathMsg());
+      }
+      pathArray->header = pathArray->paths[0].header;
+      pub.publish(pathArray);
+    }
+  }
 
 }
 
