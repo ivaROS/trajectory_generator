@@ -129,6 +129,11 @@
         return point;
     }
     
+    ros::Duration ni_trajectory::getDuration()
+    {
+        return ros::Duration(times[num_states()-1]);
+    }
+    
     
 
 
@@ -237,11 +242,11 @@ double TrajectoryGeneratorBridge::quaternionToYaw(const geometry_msgs::Quaternio
 
 ni_trajectory_ptr TrajectoryGeneratorBridge::getLongestTrajectory(const std::vector<ni_trajectory_ptr>& valid_trajs)
 {
-    size_t longest_length = 0;
+    ros::Duration longest_length;
     ni_trajectory_ptr longest_traj;
     for(size_t i=0; i < valid_trajs.size(); i++)
     {
-      size_t length = valid_trajs[i]->num_states();
+      ros::Duration length = valid_trajs[i]->getDuration();
       if(length > longest_length)
       {
         longest_traj = valid_trajs[i];
@@ -256,10 +261,10 @@ ni_trajectory_ptr TrajectoryGeneratorBridge::getCenterLongestTrajectory(const st
 {
     std::vector<ni_trajectory_ptr> longest_trajs;
     
-    size_t longest_length = 0;
+    ros::Duration longest_length;
     for(size_t i=0; i < valid_trajs.size(); i++)
     {
-      size_t length = valid_trajs[i]->num_states();
+      ros::Duration length = valid_trajs[i]->getDuration();
       if(length > longest_length)
       {
         longest_trajs.clear();

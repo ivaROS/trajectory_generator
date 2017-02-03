@@ -39,6 +39,7 @@ struct ni_trajectory
     trajectory_generator::trajectory_points toTrajectoryMsg ();
     trajectory_generator::trajectory_pointsPtr toTrajectoryMsgPtr ();
     std::vector<trajectory_generator::trajectory_point> toTrajectoryPointMsgs();
+    ros::Duration getDuration();
     
     nav_msgs::PathPtr getDesiredPathMsg();
     nav_msgs::PathPtr toPathMsg();
