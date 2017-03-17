@@ -99,17 +99,18 @@ generate_messages(
 ## CATKIN_DEPENDS: catkin_packages dependent projects also need
 ## DEPENDS: system dependencies of this project that dependent projects also need
 catkin_package(
-  INCLUDE_DIRS include
+  INCLUDE_DIRS include ${EIGEN3_INCLUDE_DIR}  #Without the Eigen3 directories, the package doesn't compile properly with catkin build
   LIBRARIES traj_generator trajectory_generator_ros_interface
   CATKIN_DEPENDS  message_runtime pips_msgs
 #  DEPENDS system_lib
 )
 
+
 include_directories(
-  include
   ${catkin_INCLUDE_DIRS}
   ${EIGEN3_INCLUDE_DIR}
   ${PROJECT_SOURCE_DIR}
+  include
 )
 
 
