@@ -9,29 +9,16 @@ LIST(APPEND CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/cmake_modules)
 find_package(catkin REQUIRED COMPONENTS roscpp
                                         std_msgs
                                         nav_msgs                                              
-                                        message_generation
-                                        geometry_msgs)
+                                        geometry_msgs
+                                        tf
+                                        pips_trajectory_msgs
+                                        )
 
 
 
 ## System dependencies are found with CMake's conventions
 find_package(Boost REQUIRED COMPONENTS system)
 find_package(Eigen3 REQUIRED)
-
-
-
-
-add_message_files(
-  FILES
-  trajectory_point.msg
-  trajectory_points.msg
-)
-
-generate_messages(
-   DEPENDENCIES
-   std_msgs
-)
-
 
 ## Uncomment this if the package has a setup.py. This macro ensures
 ## modules and global scripts declared therein get installed
@@ -101,7 +88,7 @@ generate_messages(
 catkin_package(
   INCLUDE_DIRS include ${EIGEN3_INCLUDE_DIR}  #Without the Eigen3 directories, the package doesn't compile properly with catkin build
   LIBRARIES traj_generator trajectory_generator_ros_interface
-  CATKIN_DEPENDS  message_runtime pips_msgs
+  CATKIN_DEPENDS pips_msgs pips_trajectory_msgs
 #  DEPENDS system_lib
 )
 
@@ -120,18 +107,7 @@ include_directories(
 set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS}  -Wall  ")
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall  -std=c++11")
 
-###########
-## Build ##
-###########
 
-## Specify additional locations of header files
-## Your package locations should be listed before other locations
-# include_directories(include)
-
-## Declare a cpp library
-# add_library(trajectory_generator
-#   src/${PROJECT_NAME}/trajectory_generator.cpp
-# )
 
 ## Declare a cpp executable
 add_executable(odeint_demo src/odeint_demo.cpp )
@@ -143,6 +119,8 @@ add_library(traj_generator src/traj_generator.cpp )
 add_executable(test_traj_generator src/test_traj_generator.cpp )
 add_library(trajectory_generator_ros_interface src/trajectory_generator_ros_interface.cpp )
 add_executable(test_ros_interface src/test_ros_interface.cpp )
+
+add_dependencies(trajectory_generator_ros_interface ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 
 ## Add cmake target dependencies of the executable/library
 ## as an example, message headers may need to be generated before nodes
@@ -188,50 +166,3 @@ target_link_libraries(odeint_observer
     trajectory_generator_ros_interface
  )
 
-#############
-## Install ##
-#############
-
-# all install targets should use catkin DESTINATION variables
-# See http://ros.org/doc/api/catkin/html/adv_user_guide/variables.html
-
-## Mark executable scripts (Python etc.) for installation
-## in contrast to setup.py, you can choose the destination
-# install(PROGRAMS
-#   scripts/my_python_script
-#   DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
-# )
-
-## Mark executables and/or libraries for installation
-# install(TARGETS trajectory_generator trajectory_generator_node
-#   ARCHIVE DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
-#   LIBRARY DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
-#   RUNTIME DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
-# )
-
-## Mark cpp header files for installation
-# install(DIRECTORY include/${PROJECT_NAME}/
-#   DESTINATION ${CATKIN_PACKAGE_INCLUDE_DESTINATION}
-#   FILES_MATCHING PATTERN "*.h"
-#   PATTERN ".svn" EXCLUDE
-# )
-
-## Mark other files for installation (e.g. launch and bag files, etc.)
-# install(FILES
-#   # myfile1
-#   # myfile2
-#   DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION}
-# )
-
-#############
-## Testing ##
-#############
-
-## Add gtest based cpp test target and link libraries
-# catkin_add_gtest(${PROJECT_NAME}-test test/test_trajectory_generator.cpp)
-# if(TARGET ${PROJECT_NAME}-test)
-#   target_link_libraries(${PROJECT_NAME}-test ${PROJECT_NAME})
-# endif()
-
-## Add folders to be run by python nosetests
-# catkin_add_nosetests(test)

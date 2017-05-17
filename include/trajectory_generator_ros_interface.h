@@ -1,7 +1,7 @@
 #include "traj_generator.h"
 #include <chrono>
-#include <trajectory_generator/trajectory_point.h>
-#include <trajectory_generator/trajectory_points.h>
+#include <pips_trajectory_msgs/trajectory_point.h>
+#include <pips_trajectory_msgs/trajectory_points.h>
 #include <pips_msgs/PathArray.h>
 #include <ros/ros.h>
 #include <nav_msgs/Odometry.h>
@@ -36,9 +36,9 @@ struct ni_trajectory
 
     ni_trajectory( std::vector< state_type > states , std::vector< double > t ) : x_vec( states ) , times( t ) { }
 
-    trajectory_generator::trajectory_points toTrajectoryMsg ();
-    trajectory_generator::trajectory_pointsPtr toTrajectoryMsgPtr ();
-    std::vector<trajectory_generator::trajectory_point> toTrajectoryPointMsgs();
+    pips_trajectory_msgs::trajectory_points toTrajectoryMsg ();
+    pips_trajectory_msgs::trajectory_pointsPtr toTrajectoryMsgPtr ();
+    std::vector<pips_trajectory_msgs::trajectory_point> toTrajectoryPointMsgs();
     ros::Duration getDuration();
     
     nav_msgs::PathPtr getDesiredPathMsg();

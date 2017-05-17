@@ -7,12 +7,12 @@
 #include "trajectory_generator_ros_interface.h"
 #include <pips_msgs/PathArray.h>
 
-    std::vector<trajectory_generator::trajectory_point> ni_trajectory::toTrajectoryPointMsgs()
+    std::vector<pips_trajectory_msgs::trajectory_point> ni_trajectory::toTrajectoryPointMsgs()
     {
-        std::vector<trajectory_generator::trajectory_point> trajectory;
+        std::vector<pips_trajectory_msgs::trajectory_point> trajectory;
         for(size_t i = 0; i < this->num_states(); i++)
         {
-            trajectory_generator::trajectory_point point;
+            pips_trajectory_msgs::trajectory_point point;
             point.time = ros::Duration(times[i]);
             point.x = x_vec[i][near_identity::X_IND];
             point.y = x_vec[i][near_identity::Y_IND];
@@ -25,12 +25,12 @@
     }
     
     
-    trajectory_generator::trajectory_points ni_trajectory::toTrajectoryMsg ()
+    pips_trajectory_msgs::trajectory_points ni_trajectory::toTrajectoryMsg ()
     {
         //ni_trajectory::printTrajectory();
-        std::vector<trajectory_generator::trajectory_point> points = ni_trajectory::toTrajectoryPointMsgs();
+        std::vector<pips_trajectory_msgs::trajectory_point> points = ni_trajectory::toTrajectoryPointMsgs();
     
-        trajectory_generator::trajectory_points trajectory_msg;
+        pips_trajectory_msgs::trajectory_points trajectory_msg;
         trajectory_msg.points = points;
         trajectory_msg.header = header;
         
@@ -38,9 +38,9 @@
     }
     
     //Not sure if this works; if it does, then the transforming function must not be
-    trajectory_generator::trajectory_pointsPtr ni_trajectory::toTrajectoryMsgPtr ()
+    pips_trajectory_msgs::trajectory_pointsPtr ni_trajectory::toTrajectoryMsgPtr ()
     {
-      trajectory_generator::trajectory_pointsPtr msgPtr(new trajectory_generator::trajectory_points);
+      pips_trajectory_msgs::trajectory_pointsPtr msgPtr(new pips_trajectory_msgs::trajectory_points);
       msgPtr->points = ni_trajectory::toTrajectoryPointMsgs();
       msgPtr->header = header;
       
