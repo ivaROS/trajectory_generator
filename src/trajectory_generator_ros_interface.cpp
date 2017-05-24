@@ -69,16 +69,8 @@
         
         for(size_t i=0; i < this->num_states(); i++)
         {
-            state_type state = x_vec[i];
-            geometry_msgs::PoseStamped pose;
-            pose.header = header;
+            geometry_msgs::PoseStamped pose = getPoseStamped(i);
             
-            pose.pose.position.x = state[near_identity::X_IND];
-            pose.pose.position.y = state[near_identity::Y_IND];
-
-            double theta = state[near_identity::THETA_IND];
-            pose.pose.orientation = TrajectoryGeneratorBridge::yawToQuaternion(theta);//what I had here before seemed to work, but I would prefer to encapsulate all my conversions
-
             path_msg->poses.push_back(pose);
         }
         
@@ -90,7 +82,7 @@
         nav_msgs::PathPtr path_msg(new nav_msgs::Path);
         path_msg->header = header;
         
-        for(size_t i=0; i < this->num_states(); i++)
+        for(size_t i=0; i < ni_trajectory::num_states(); i++)  // The desired path shouldn't be cropped by collision
         {
             state_type state = x_vec[i];
             geometry_msgs::PoseStamped pose;
@@ -124,9 +116,32 @@
         geometry_msgs::PointStamped point;
         point.point = getPoint(i);
         point.header = header;
-        point.header.stamp += ros::Duration(times[i]);
+        point.header.stamp += ros::Duration(times[i]);  //Debateable whether this is good or not...
         
         return point;
+    }
+    
+    geometry_msgs::Quaternion ni_trajectory::getQuaternion(int i)
+    {
+        double theta = x_vec[i][near_identity::THETA_IND];
+        geometry_msgs::Quaternion quat = TrajectoryGeneratorBridge::yawToQuaternion(theta);//what I had here before seemed to work, but I would prefer to encapsulate all my conversions
+        return quat;
+    }
+    
+    geometry_msgs::Pose ni_trajectory::getPose(int i)
+    {
+        geometry_msgs::Pose pose;
+        pose.position = getPoint(i);
+        pose.orientation = getQuaternion(i);
+        return pose;
+    }
+    
+    geometry_msgs::PoseStamped ni_trajectory::getPoseStamped(int i)
+    {
+        geometry_msgs::PoseStamped pose;
+        pose.pose = getPose(i);
+        pose.header = header;
+        return pose;
     }
     
     ros::Duration ni_trajectory::getDuration()

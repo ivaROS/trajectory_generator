@@ -132,7 +132,7 @@ using namespace boost::numeric::odeint;
     x_vec.clear();
     times.clear();
     
-    near_identity ni(params.cp,params.cd,params.cl,params.eps);
+    near_identity ni(params.cp,params.cd,params.cl,params.eps,params.v_max,params.w_max,params.a_max,params.w_dot_max);
     
     func.init(x0);
     

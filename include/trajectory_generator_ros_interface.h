@@ -47,6 +47,9 @@ struct ni_trajectory
     virtual size_t num_states();
     geometry_msgs::Point getPoint(int i);
     geometry_msgs::PointStamped getPointStamped(int i);
+    geometry_msgs::Pose getPose(int i);
+    geometry_msgs::PoseStamped getPoseStamped(int i);
+    geometry_msgs::Quaternion getQuaternion(int i);
 
 };
 
