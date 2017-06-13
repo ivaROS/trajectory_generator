@@ -82,15 +82,9 @@
         nav_msgs::PathPtr path_msg(new nav_msgs::Path);
         path_msg->header = header;
         
-        for(size_t i=0; i < ni_trajectory::num_states(); i++)  // The desired path shouldn't be cropped by collision
+        for(size_t i=0; i < this->num_states(); i++)  // The desired path shouldn't be cropped by collision... yet graphically that looks terrible
         {
-            state_type state = x_vec[i];
-            geometry_msgs::PoseStamped pose;
-            pose.header = header;
-            
-            pose.pose.position.x = state[near_identity::XD_IND];
-            pose.pose.position.y = state[near_identity::YD_IND];
-
+            geometry_msgs::PoseStamped pose = getPoseStamped(i);
             path_msg->poses.push_back(pose);
         }
         
@@ -140,7 +134,7 @@
     {
         geometry_msgs::PoseStamped pose;
         pose.pose = getPose(i);
-        pose.header = header;
+        pose.header = header; //See note next to 'getPointStamped' above... should be consistent
         return pose;
     }
     
