@@ -47,6 +47,7 @@
       return msgPtr;
     }
     
+    //TODO: change this to a toString() method for more flexibility
     void ni_trajectory::print()
     {
         std::cout << "Time" << '\t' << "Error" << '\t' << 'x' << '\t' << 'y' << '\t' << "theta" << '\t' << 'v' << '\t' << 'w' << '\t' << "lambda" << '\t' << "xd" << '\t' << "yd" << std::endl;
@@ -109,8 +110,7 @@
     {
         geometry_msgs::PointStamped point;
         point.point = getPoint(i);
-        point.header = header;
-        point.header.stamp += ros::Duration(times[i]);  //Debateable whether this is good or not...
+        point.header = getHeader(i);
         
         return point;
     }
@@ -134,8 +134,15 @@
     {
         geometry_msgs::PoseStamped pose;
         pose.pose = getPose(i);
-        pose.header = header; //See note next to 'getPointStamped' above... should be consistent
+        pose.header = getHeader(i);
         return pose;
+    }
+    
+    std_msgs::Header ni_trajectory::getHeader(int i)
+    {
+        std_msgs::Header _header = header;
+        _header.stamp += ros::Duration(times[i]);
+        return _header;
     }
     
     ros::Duration ni_trajectory::getDuration()

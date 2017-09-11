@@ -50,6 +50,7 @@ struct ni_trajectory
     geometry_msgs::Pose getPose(int i);
     geometry_msgs::PoseStamped getPoseStamped(int i);
     geometry_msgs::Quaternion getQuaternion(int i);
+    std_msgs::Header getHeader(int i);
 
 };
 
@@ -127,13 +128,13 @@ state_type initState(T& source)
 
 template<const nav_msgs::Odometry::ConstPtr&> state_type initState(const nav_msgs::Odometry::ConstPtr& curr_odom);
 
-inline
+//inline
 static geometry_msgs::Quaternion yawToQuaternion(const double yaw);
 
-inline
+//inline
 static double quaternionToYaw(const geometry_msgs::Quaternion& quaternion);
 
-inline
+//inline
 static const nav_msgs::OdometryPtr OdomFromState(const state_type& state, double t, const std_msgs::Header& header);
 
 static ni_trajectory_ptr getLongestTrajectory(const std::vector<ni_trajectory_ptr>& valid_trajs);
