@@ -143,6 +143,14 @@ static ni_trajectory_ptr getCenterLongestTrajectory(const std::vector<ni_traject
 static void publishPaths(const ros::Publisher& pub, const std::vector<ni_trajectory_ptr>& trajs);
 static void publishDesiredPaths(const ros::Publisher& pub, const std::vector<ni_trajectory_ptr>& trajs);
 
+  inline
+  static void convertPose(pips_trajectory_msgs::trajectory_point& pose_in, geometry_msgs::Pose&  pose_out)
+  {
+    pose_out.position.x = pose_in.x;
+    pose_out.position.y = pose_in.y;
+    TrajectoryGeneratorBridge::yawToQuaternion(pose_in.theta);
+  }
+
 };
 
 #endif
