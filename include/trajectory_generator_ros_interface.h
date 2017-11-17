@@ -144,6 +144,8 @@ static ni_trajectory_ptr getCenterLongestTrajectory(const std::vector<ni_traject
 static void publishPaths(const ros::Publisher& pub, const std::vector<ni_trajectory_ptr>& trajs);
 static void publishDesiredPaths(const ros::Publisher& pub, const std::vector<ni_trajectory_ptr>& trajs);
 
+
+
 };
 
 #endif

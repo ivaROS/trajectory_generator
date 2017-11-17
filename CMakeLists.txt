@@ -12,6 +12,7 @@ find_package(catkin REQUIRED COMPONENTS roscpp
                                         geometry_msgs
                                         tf
                                         pips_trajectory_msgs
+                                        pips_msgs
                                         )
 
 
@@ -101,8 +102,6 @@ include_directories(
 )
 
 
-#set(CMAKE_C_COMPILER "${CMAKE_C_COMPILER} gcc-4.8)
-#set(CMAKE_CXX_COMPILER "${CMAKE_CXX_COMPILER} g++-4.8)
 
 set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS}  -Wall  ")
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall  -std=c++11")
