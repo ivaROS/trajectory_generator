@@ -44,6 +44,7 @@ struct ni_trajectory
     nav_msgs::PathPtr getDesiredPathMsg();
     nav_msgs::PathPtr toPathMsg();
     void print();
+	void setCollisionInd(int i);
     virtual size_t num_states();
     geometry_msgs::Point getPoint(int i);
     geometry_msgs::PointStamped getPointStamped(int i);

@@ -96,7 +96,11 @@
     {
         return x_vec.size();
     }
-    
+void ni_trajectory::setCollisionInd ( int i )
+{
+	x_vec.resize(i);
+}
+
     geometry_msgs::Point ni_trajectory::getPoint(int i)
     {
         state_type state = x_vec[i];
