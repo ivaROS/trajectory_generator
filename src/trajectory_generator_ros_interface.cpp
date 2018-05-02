@@ -140,9 +140,9 @@
     
     std_msgs::Header ni_trajectory::getHeader(int i)
     {
-        std_msgs::Header _header = header;
-        _header.stamp += ros::Duration(times[i]);
-        return _header;
+        std_msgs::Header t_header = header;
+        t_header.stamp += ros::Duration(times[i]);
+        return t_header;
     }
     
     ros::Duration ni_trajectory::getDuration()

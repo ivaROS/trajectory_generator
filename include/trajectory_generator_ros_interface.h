@@ -83,7 +83,11 @@ state_type initState()
     return x0;
 }
 
-
+inline
+void initState(state_type& x0, double v0)
+{
+    x0[near_identity::V_IND] = v0;
+}
 
 inline
 void initState(state_type& x0)
