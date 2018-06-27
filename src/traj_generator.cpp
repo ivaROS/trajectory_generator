@@ -19,35 +19,11 @@
 
 
 
-//[ rhs_class
-/* The rhs of x' = f(x) defined as a class */
-class ni_controller {
-
-    near_identity ni_;
-    traj_func* traj_;   //Will look into using reference to function 
-    
-
-public:
-    ni_controller( near_identity ni) :  ni_(ni) { }
-
-    void setTrajFunc(traj_func* traj)
-    {
-      traj_ = traj;
-    }
-
-    void operator() ( const state_type &x , state_type &dxdt , const double  t  )
-    {
-        traj_->dState(x,dxdt,t);
-        ni_(x,dxdt,t);
-    }
-};
-
-
-
 
 
 
 //[ integrate_observer
+template <typename state_type>
 class push_back_state_and_time
 {
     public:
@@ -72,9 +48,7 @@ traj_generator::traj_generator()
   double abs_err, rel_err, a_x, a_dxdt;
   
   double t0, tf, dt;
-  double cp, cd, cl, eps;
-  
-  double v_max, w_max, a_max, w_dot_max;
+
   
   abs_err = 1.0e-10;
   rel_err = 1.0e-6;
@@ -85,20 +59,13 @@ traj_generator::traj_generator()
   tf = 5.0;
   dt = .1;
   
-  cp = 100;
-  cd = 100;
-  cl = 100;
-  eps = .01;
   
-  v_max = std::numeric_limits<double>::infinity();
-  w_max = std::numeric_limits<double>::infinity();
-  a_max = std::numeric_limits<double>::infinity();
-  w_dot_max = std::numeric_limits<double>::infinity();
+  
 
   default_params_ = (traj_params) 
   { 
-    .tf=tf, .t0=t0, .dt=dt, .cp=cp, .cd=cd, .cl=cl, .eps=eps, .abs_err=abs_err, .rel_err=rel_err, 
-    .a_x=a_x, .a_dxdt=a_dxdt, .v_max=v_max, .w_max=w_max, .a_max=a_max,.w_dot_max=w_dot_max
+    .tf=tf, .t0=t0, .dt=dt, .abs_err=abs_err, .rel_err=rel_err, 
+    .a_x=a_x, .a_dxdt=a_dxdt
   };
   
 }
@@ -122,23 +89,12 @@ size_t traj_generator::run(traj_func& func, state_type &x0, std::vector<state_ty
 {
 using namespace boost::numeric::odeint;
 
-  //Lambda must never equal 0
-  if (x0[5] ==0)
-    return 0;
-  
-
     size_t steps;
 
     x_vec.clear();
     times.clear();
-    
-    near_identity ni(params.cp,params.cd,params.cl,params.eps,params.v_max,params.w_max,params.a_max,params.w_dot_max);
-    
+        
     func.init(x0);
-    
-    ni_controller controller(ni);
-    controller.setTrajFunc(&func);
-  
 
     {
       typedef runge_kutta_cash_karp54< state_type > error_stepper_type;

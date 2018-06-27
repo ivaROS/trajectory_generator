@@ -52,7 +52,7 @@ public:
   
   geometry_msgs::Pose getPose()
   {
-    return (T)this->getPose();
+    return static_cast<T*>(this)->getPose();
   }
 
 };
@@ -69,6 +69,7 @@ class ni_state : public TrajectoryState<ni_state,8>
   
 };
 
+typedef 
 //typedef std::vector<double> ni_state;
 
 

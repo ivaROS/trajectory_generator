@@ -9,9 +9,6 @@
 
 #ifndef TRAJ_GENERATOR_H
 #define TRAJ_GENERATOR_H
-     
-#include "near_identity.h"
-#include <vector>
 
 
 //[ rhs_function
@@ -19,9 +16,60 @@
 //typedef std::vector< double > state_type;
 
 
+template<typename T, size_t N>
+class TrajectoryState
+{
+  typedef std::vector<double> array;
+  
+protected:
+  array data;
+  
+public:
+  
+  typedef typename array::value_type value_type;
+  
+  typedef typename array::iterator iterator;
+  typedef typename array::const_iterator const_iterator;
+  
+  
+  
+  iterator begin() {return data.begin();}
+  iterator end() {return data.end();}
+  
+  const_iterator begin() const {return data.begin();}
+  const_iterator end() const {return data.end();}
+  
+  inline const double& operator[] (size_t n) const { return (data[n]); }
+  inline double& operator[] (size_t n)  { return (data[n]); }
+  
+  TrajectoryState() : data(N)
+  {
+  }
+  
+  template<typename S>
+  void to(S& obj)
+  {
+    return static_cast<T*>(this)->to<S>(obj);
+  }
+  
+  template<typename S>
+  void from(const S& obj)
+  {
+    return static_cast<T*>(this)->from<S>(obj);
+  }
+  
+  bool checkState()
+  {
+    return static_cast<T*>(this)->checkState();
+  }
+  
+  
+};
+
 
 //[ rhs_class
 /* The rhs of x' = f(x) defined as a class */
+template <typename state_type>
 class traj_func {
 
 public:
@@ -39,12 +87,12 @@ public:
 struct traj_params {
 
 public:
-    double tf,t0,dt,cp,cd,cl,eps,abs_err,rel_err,a_x,a_dxdt,v_max,w_max,a_max,w_dot_max;
+    double tf,t0,dt,eps,abs_err,rel_err;
     
     };
 
 
-
+template <typename state_type>
 class traj_generator {
 
   public:
