@@ -22,51 +22,54 @@
 /* The type of container used to hold the state vector */
 
 
-// template<typename T, size_t N>
-// class TrajectoryState
-// {
-//   typedef std::array<double, N> array;
-//   
-// protected:
-//   array data;
-//   
-// public:
-//   
-//   typedef typename array::value_type value_type;
-//   
-//   typedef typename array::iterator iterator;
-//   typedef typename array::const_iterator const_iterator;
-//   
-//   iterator begin() {return data.begin();}
-//   iterator end() {return data.end();}
-//   
-//   const_iterator begin() const {return data.begin();}
-//   const_iterator end() const {return data.end();}
-//   
-//   inline const double& operator[] (size_t n) const { return (data[n]); }
-//   inline double& operator[] (size_t n)  { return (data[n]); }
-//   
-//   
-//   geometry_msgs::Pose getPose()
-//   {
-//     return (T)this->getPose();
-//   }
-// 
-// };
-// 
-// class ni_state : public TrajectoryState<ni_state,8>
-// {
-//   
-//   geometry_msgs::Pose getPose()
-//   {
-//     geometry_msgs::Pose pose;
-//     pose.position.x = data[0];
-//     return pose;
-//   }
-//   
-// };
+template<typename T, size_t N>
+class TrajectoryState
+{
+  typedef std::vector<double> array;
+  
+protected:
+  array data;
+  
+public:
+  
+  typedef typename array::value_type value_type;
+  
+  typedef typename array::iterator iterator;
+  typedef typename array::const_iterator const_iterator;
+  
+  iterator begin() {return data.begin();}
+  iterator end() {return data.end();}
+  
+  const_iterator begin() const {return data.begin();}
+  const_iterator end() const {return data.end();}
+  
+  inline const double& operator[] (size_t n) const { return (data[n]); }
+  inline double& operator[] (size_t n)  { return (data[n]); }
+  
+  TrajectoryState() : data(N)
+  {
+  }
+  
+  geometry_msgs::Pose getPose()
+  {
+    return (T)this->getPose();
+  }
 
-typedef std::vector<double> ni_state;
+};
+
+class ni_state : public TrajectoryState<ni_state,8>
+{
+  
+  geometry_msgs::Pose getPose()
+  {
+    geometry_msgs::Pose pose;
+    pose.position.x = data[0];
+    return pose;
+  }
+  
+};
+
+//typedef std::vector<double> ni_state;
 
 
 class near_identity {
@@ -330,7 +333,7 @@ int main(int /* argc */ , char** /* argv */ )
 
 
     //[ initial state
-    ni_state x0(8); 
+    ni_state x0; 
     x0[0] = 0.0; //x
     x0[1] = 0.0; //y
     x0[2] = 0.0; //theta
