@@ -165,3 +165,10 @@ target_link_libraries(odeint_observer
     trajectory_generator_ros_interface
  )
 
+ 
+ add_executable(odeint_custom_container src/odeint_custom_container.cpp )
+
+  target_link_libraries(odeint_custom_container
+   ${catkin_LIBRARIES}
+     ${EIGEN3_LIBS}
+)
