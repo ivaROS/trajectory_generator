@@ -88,7 +88,7 @@ find_package(Eigen3 REQUIRED)
 ## DEPENDS: system dependencies of this project that dependent projects also need
 catkin_package(
   INCLUDE_DIRS include ${EIGEN3_INCLUDE_DIR}  #Without the Eigen3 directories, the package doesn't compile properly with catkin build
-  LIBRARIES traj_generator trajectory_generator_ros_interface
+  LIBRARIES 
   CATKIN_DEPENDS pips_msgs pips_trajectory_msgs
 #  DEPENDS system_lib
 )
@@ -117,7 +117,7 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall  -std=c++11")
 # add_library(traj_generator src/traj_generator.cpp )
 add_executable(test_traj_generator src/test_traj_generator.cpp )
 # add_library(trajectory_generator_ros_interface src/trajectory_generator_ros_interface.cpp )
-# add_executable(test_ros_interface src/test_ros_interface.cpp )
+add_executable(test_ros_interface src/test_ros_interface.cpp )
 # 
 # add_dependencies(trajectory_generator_ros_interface ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 # 
@@ -159,10 +159,9 @@ add_executable(test_traj_generator src/test_traj_generator.cpp )
 #     traj_generator
 #  )
 # 
-#   target_link_libraries(test_ros_interface
-#    ${catkin_LIBRARIES}
-#     trajectory_generator_ros_interface
-#  )
+  target_link_libraries(test_ros_interface
+   ${catkin_LIBRARIES}
+ )
 
  
  add_executable(odeint_custom_container src/odeint_custom_container.cpp )

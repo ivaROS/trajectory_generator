@@ -68,7 +68,21 @@ public:
   
   
 };
-
+/*
+// A Functor
+class increment
+{
+private:
+  int num;
+public:
+  increment(int n) : num(n) {  }
+  
+  // This operator overloading enables calling
+  // operator function () on objects of increment
+  int operator () (int arr_num) const {
+    return num + arr_num;
+  }
+};*/
 
 
 //[ rhs_class
@@ -122,7 +136,7 @@ public:
   }
 };
 
-template <typename state_type>
+template <typename state_type, typename F>
 class traj_generator {
 
 private:
@@ -149,13 +163,11 @@ private:
     default_params_ = new_params;
   }
   
-  template <typename F>
   size_t run(F& func, state_type &x0, std::vector<state_type> &x_vec, std::vector<double> &times)
   {
     return traj_generator::run(func, x0, x_vec, times, default_params_);
   }
   
-  template <typename F>
   size_t run(F& func, state_type &x0, std::vector<state_type> &x_vec, std::vector<double> &times, traj_params& params)
   {
     using namespace boost::numeric::odeint;

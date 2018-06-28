@@ -1,3 +1,6 @@
+#ifndef TRAJECTORY_GENERATOR_ROS_INTERFACE_H
+#define TRAJECTORY_GENERATOR_ROS_INTERFACE_H
+
 #include "traj_generator.h"
 #include <chrono>
 #include <pips_trajectory_msgs/trajectory_point.h>
@@ -12,17 +15,27 @@
 #include <geometry_msgs/Point.h>
 
 
-#ifndef TRAJECTORY_GENERATOR_ROS_INTERFACE_H
-#define TRAJECTORY_GENERATOR_ROS_INTERFACE_H
+#include <tf/transform_datatypes.h>
+
+#include <iostream>
+
+
+
+
 
 typedef std::shared_ptr<traj_params> traj_params_ptr;
-typedef std::shared_ptr<traj_func> traj_func_ptr;
 
-template <typename state_type>
+template <typename state_type, typename traj_func_type>
 struct trajectory_states
 {
     using msg_state_type = typename state_type::msg_state_type;
 
+    typedef std::shared_ptr<traj_func_type> traj_func_ptr;
+    
+    typedef std::shared_ptr<trajectory_states<state_type, traj_func_type>  > trajectory_ptr;
+    
+    //TODO: update with my current naming scheme here
+    
     std::vector<state_type> x_vec;
     std::vector<double> times;
     state_type x0_;   //This will be the same for a number of trajectories; may want to replace with shared_ptr. On the other hand, it is a small structure, and could be passed by registers, which would be faster than  resolving the reference...
@@ -37,7 +50,7 @@ struct trajectory_states
 
     trajectory_states( std::vector< state_type > states , std::vector< double > t ) : x_vec( states ) , times( t ) { }
 
-    
+    /*
     std::vector<msg_state_type> toTrajectoryPointMsgs()
     {
       std::vector<msg_state_type> trajectory;
@@ -78,21 +91,7 @@ struct trajectory_states
       return msgPtr;
     }
     
-//     //TODO: change this to a toString() method for more flexibility
-//     void trajectory_states::print()
-//     {
-//       std::cout << "Time" << '\t' << "Error" << '\t' << 'x' << '\t' << 'y' << '\t' << "theta" << '\t' << 'v' << '\t' << 'w' << '\t' << "lambda" << '\t' << "xd" << '\t' << "yd" << std::endl;
-//       
-//       for( size_t i=0; i < this->num_states(); i++ )
-//       {
-//         double error_x = x_vec[i][near_identity::X_IND] - x_vec[i][near_identity::XD_IND];
-//         double error_y = x_vec[i][near_identity::Y_IND] - x_vec[i][near_identity::YD_IND];
-//         
-//         double error = sqrt(error_x*error_x + error_y*error_y);
-//         printf("%.4f\t%.4f\t%.4f\t%.4f\t%.4f\t%.4f\t%.4f\t%.4f\t%.4f\t%.4f\n", times[i], error, x_vec[i][0], x_vec[i][1], x_vec[i][2], x_vec[i][3], x_vec[i][4], x_vec[i][5], x_vec[i][6], x_vec[i][7]);
-//       }
-//     }
-    
+
     
     nav_msgs::PathPtr toPathMsg()
     {
@@ -183,102 +182,172 @@ struct trajectory_states
     ros::Duration getDuration()
     {
       return ros::Duration(times[num_states()-1]);
-    }
+    }*/
+    
+    
 };
 
-typedef std::shared_ptr<trajectory_states> trajectory_ptr;
 
+template<typename state_type, typename F>
 class TrajectoryGeneratorBridge
 {
 
-    traj_generator trajectory_gen_;
-    std::string odom_frame_id_ = "odom";
-    
-    double robot_radius_;
-    std::string name_="TrajectoryGeneratorBridge";
+  traj_generator<state_type,F> trajectory_gen_;
+  std::string odom_frame_id_ = "odom";
+  
+  double robot_radius_;
+  std::string name_="TrajectoryGeneratorBridge";
 
 public:
+  
+  typedef std::shared_ptr<trajectory_states<state_type, F> > trajectory_ptr;
 
-TrajectoryGeneratorBridge();
-
-void updateParams();
-traj_params getDefaultParams();
-void setDefaultParams(traj_params_ptr& new_params);
-
-void generate_trajectory(trajectory_ptr trajectory);
-
-inline
-state_type initState()
-{
-    state_type x0(8);
-    TrajectoryGeneratorBridge::initState(x0);
-    return x0;
-}
-
-inline
-void initState(state_type& x0, double v0)
-{
-    x0[near_identity::V_IND] = v0;
-}
-
-inline
-void initState(state_type& x0)
-{
-    x0[near_identity::X_IND] = 0;      //x
-    x0[near_identity::Y_IND] = 0;      //y
-    x0[near_identity::THETA_IND] = 0;  //theta
-    x0[near_identity::V_IND] = 0;      //v
-    x0[near_identity::W_IND] = 0;      //w
-    x0[near_identity::LAMBDA_IND] = robot_radius_;    //lambda: must be > 0!
-    x0[near_identity::XD_IND] = 0;    //x_d
-    x0[near_identity::YD_IND] = 0;    //y_d
-}
-
-inline
-void initState(state_type& x0, const nav_msgs::Odometry::ConstPtr& curr_odom)
-{
-    double vx = curr_odom->twist.twist.linear.x;
-    double vy = curr_odom->twist.twist.linear.y;
-    double v = std::sqrt((vx*vx) + (vy*vy)); 
-    double w = curr_odom->twist.twist.angular.z;
-
-    x0[near_identity::V_IND] = v;      //v
-    x0[near_identity::W_IND] = w;      //w
-}
-
-inline
-void initState(trajectory_ptr& traj, const nav_msgs::Odometry::ConstPtr& curr_odom)
-{
-    initState(traj->x0_, curr_odom);
+  TrajectoryGeneratorBridge()
+  {
+  }
+  
+  void generate_trajectory(trajectory_ptr trajectory) //Can this be passed by reference safely?
+  {   
+    //How long does the integration take? Get current time
+    auto t1 = std::chrono::high_resolution_clock::now();
     
-}
+    if(trajectory->params == NULL)
+    {
+      trajectory_gen_.run(*trajectory->trajpntr, trajectory->x0_, trajectory->x_vec, trajectory->times);
+    }
+    else
+    {
+      trajectory_gen_.run(*trajectory->trajpntr, trajectory->x0_, trajectory->x_vec, trajectory->times, *trajectory->params);
+    }
+    
+    auto t2 = std::chrono::high_resolution_clock::now();
+    std::chrono::duration<double, std::milli> fp_ms = t2 - t1;
+    
+    ROS_DEBUG_STREAM_NAMED(name_, "Integration took " << fp_ms.count() << " ms\n");
+  }
 
+  //Parameter related functions, possibly unnecessary
+  //Don't remember if this ever had any function
+  void updateParams()
+  {
+    
+    
+  }
+  
+  traj_params getDefaultParams()
+  {
+    return trajectory_gen_.getDefaultParams();
+  }
+  
+  void setDefaultParams(traj_params_ptr& new_params)
+  {
+    trajectory_gen_.setDefaultParams(*new_params);
+  }
+  
+  
+  
+  
+  
+  //Static convenience functions
+  static geometry_msgs::Quaternion yawToQuaternion(const double yaw)
+  {
+    double roll = 0;
+    double pitch = 0;
+    return tf::createQuaternionMsgFromRollPitchYaw(roll, pitch, yaw);
+  }
+  
+  static double quaternionToYaw(const geometry_msgs::Quaternion& quaternion)
+  {
+    // the incoming geometry_msgs::Quaternion is transformed to a tf::Quaterion
+    tf::Quaternion quat;
+    tf::quaternionMsgToTF(quaternion, quat);
+    
+    // the tf::Quaternion has a method to acess roll pitch and yaw
+    double roll, pitch, yaw;
+    tf::Matrix3x3(quat).getRPY(roll, pitch, yaw);
+    
+    return yaw;
+  }
+  
+  static trajectory_ptr getLongestTrajectory(const std::vector<trajectory_ptr>& valid_trajs)
+  {
+    ros::Duration longest_length;
+    trajectory_ptr longest_traj;
+    for(size_t i=0; i < valid_trajs.size(); i++)
+    {
+      ros::Duration length = valid_trajs[i]->getDuration();
+      if(length > longest_length)
+      {
+        longest_traj = valid_trajs[i];
+        longest_length = length;
+      }
+    }
+    
+    return longest_traj;
+  }
 
-template<typename T>
-state_type initState(T& source)
-{
-    state_type x0 = TrajectoryGeneratorBridge::initState();
-    initState(x0, source);
-    return x0;
-}
+  static trajectory_ptr getCenterLongestTrajectory(const std::vector<trajectory_ptr>& valid_trajs)
+  {
+    std::vector<trajectory_ptr> longest_trajs;
+    
+    ros::Duration longest_length;
+    for(size_t i=0; i < valid_trajs.size(); i++)
+    {
+      ros::Duration length = valid_trajs[i]->getDuration();
+      if(length > longest_length)
+      {
+        longest_trajs.clear();
+        longest_trajs.push_back(valid_trajs[i]);
+        longest_length = length;
+      }
+      else if(length == longest_length)
+      {
+        longest_trajs.push_back(valid_trajs[i]);
+      }
+    }
+    
+    trajectory_ptr longest_traj = longest_trajs[longest_trajs.size()/2];
+    
+    return longest_traj;
+  }
 
-template<const nav_msgs::Odometry::ConstPtr&> state_type initState(const nav_msgs::Odometry::ConstPtr& curr_odom);
-
-//inline
-static geometry_msgs::Quaternion yawToQuaternion(const double yaw);
-
-//inline
-static double quaternionToYaw(const geometry_msgs::Quaternion& quaternion);
-
-//inline
-static const nav_msgs::OdometryPtr OdomFromState(const state_type& state, double t, const std_msgs::Header& header);
-
-static trajectory_ptr getLongestTrajectory(const std::vector<ni_trajectory_ptr>& valid_trajs);
-static trajectory_ptr getCenterLongestTrajectory(const std::vector<ni_trajectory_ptr>& valid_trajs);
-
-static void publishPaths(const ros::Publisher& pub, const std::vector<ni_trajectory_ptr>& trajs);
-static void publishDesiredPaths(const ros::Publisher& pub, const std::vector<ni_trajectory_ptr>& trajs);
-
+  
+  /* My custom rviz display removes much of the original purpose of this. Another issue is having pointers to pips_trajectories */
+  static void publishPaths(const ros::Publisher& pub, const std::vector<trajectory_ptr>& trajs)
+  {
+    if(pub.getNumSubscribers() > 0)
+    {
+      if(trajs.size() > 0)
+      {
+        pips_msgs::PathArray::Ptr pathArray(new pips_msgs::PathArray);
+        for(size_t i = 0; i < trajs.size(); i++)
+        {
+          pathArray->paths.push_back(*trajs[i]->toPathMsg());
+        }
+        pathArray->header = pathArray->paths[0].header;
+        pub.publish(pathArray);
+      }
+    }
+    
+  }
+  
+  static void publishDesiredPaths(const ros::Publisher& pub, const std::vector<trajectory_ptr>& trajs)
+  {
+    if(pub.getNumSubscribers() > 0)
+    {
+      if(trajs.size() > 0)
+      {
+        pips_msgs::PathArray::Ptr pathArray(new pips_msgs::PathArray);
+        for(size_t i = 0; i < trajs.size(); i++)
+        {
+          pathArray->paths.push_back(*trajs[i]->getDesiredPathMsg());
+        }
+        pathArray->header = pathArray->paths[0].header;
+        pub.publish(pathArray);
+      }
+    }
+    
+  }
 
 
 };
