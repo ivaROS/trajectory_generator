@@ -115,7 +115,7 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall  -std=c++11")
 # add_executable(near_identity_test src/near_identity_test.cpp )
 # add_executable(odeint_controller src/odeint_controller.cpp )
 # add_library(traj_generator src/traj_generator.cpp )
-# add_executable(test_traj_generator src/test_traj_generator.cpp )
+add_executable(test_traj_generator src/test_traj_generator.cpp )
 # add_library(trajectory_generator_ros_interface src/trajectory_generator_ros_interface.cpp )
 # add_executable(test_ros_interface src/test_ros_interface.cpp )
 # 
@@ -148,11 +148,10 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall  -std=c++11")
 #      ${EIGEN3_LIBS}
 #  )
 #  
-#   target_link_libraries(test_traj_generator
-#    ${catkin_LIBRARIES}
-#      ${EIGEN3_LIBS}
-#      traj_generator
-#  )
+  target_link_libraries(test_traj_generator
+   ${catkin_LIBRARIES}
+     ${EIGEN3_LIBS}
+ )
 #  
 #   target_link_libraries(trajectory_generator_ros_interface
 #    ${catkin_LIBRARIES}

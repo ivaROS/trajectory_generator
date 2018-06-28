@@ -16,12 +16,6 @@
 
 
 
-
-
-
-
-
-
 //[ integrate_observer
 template <typename state_type>
 class push_back_state_and_time
@@ -41,8 +35,8 @@ class push_back_state_and_time
 };
 //]
 
-
-traj_generator::traj_generator()
+template<typename state_type>
+traj_generator<state_type>::traj_generator()
 {
 
   double abs_err, rel_err, a_x, a_dxdt;
@@ -70,22 +64,22 @@ traj_generator::traj_generator()
   
 }
 
-traj_params traj_generator::getDefaultParams()
+traj_params traj_generator<state_type>::getDefaultParams()
 {
   return default_params_; 
 }
 
-void traj_generator::setDefaultParams(traj_params &new_params)
+void traj_generator<state_type>::setDefaultParams(traj_params &new_params)
 {
   default_params_ = new_params;
 }
 
-size_t traj_generator::run(traj_func& func, state_type &x0, std::vector<state_type> &x_vec, std::vector<double> &times)
+size_t traj_generator<state_type>::run(traj_func<state_type>& func, state_type &x0, std::vector<state_type> &x_vec, std::vector<double> &times)
 {
   return traj_generator::run(func, x0, x_vec, times, default_params_);
 }
 
-size_t traj_generator::run(traj_func& func, state_type &x0, std::vector<state_type> &x_vec, std::vector<double> &times, traj_params& params)
+size_t traj_generator<state_type>::run(traj_func<state_type>& func, state_type &x0, std::vector<state_type> &x_vec, std::vector<double> &times, traj_params& params)
 {
 using namespace boost::numeric::odeint;
 
