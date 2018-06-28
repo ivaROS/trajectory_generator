@@ -28,7 +28,7 @@ typedef std::shared_ptr<traj_params> traj_params_ptr;
 template <typename state_type, typename traj_func_type>
 struct trajectory_states
 {
-    using msg_state_type = typename state_type::msg_state_type;
+    //using msg_state_type = typename state_type::msg_state_type;
 
     typedef std::shared_ptr<traj_func_type> traj_func_ptr;
     
@@ -50,46 +50,38 @@ struct trajectory_states
 
     trajectory_states( std::vector< state_type > states , std::vector< double > t ) : x_vec( states ) , times( t ) { }
 
-    /*
-    std::vector<msg_state_type> toTrajectoryPointMsgs()
-    {
-      std::vector<msg_state_type> trajectory;
-      for(size_t i = 0; i < this->num_states(); i++)
-      {
-        pips_trajectory_msgs::trajectory_point point;
-        point.time = ros::Duration(times[i]);
-        point.x = x_vec[i][near_identity::X_IND];
-        point.y = x_vec[i][near_identity::Y_IND];
-        point.theta = x_vec[i][near_identity::THETA_IND];
-        point.v = x_vec[i][near_identity::V_IND];
-        point.w = x_vec[i][near_identity::W_IND];
-        trajectory.push_back(point);
-      }
-      return trajectory;
-    }
     
-    
-    pips_trajectory_msgs::trajectory_points toTrajectoryMsg ()
+    typename state_type::trajectory_msg_t toMsg() //-> decltype(typename state_type::trajectory_msg_t)
     {
-      //ni_trajectory::printTrajectory();
-      std::vector<pips_trajectory_msgs::trajectory_point> points = ni_trajectory::toTrajectoryPointMsgs();
-      
-      pips_trajectory_msgs::trajectory_points trajectory_msg;
-      trajectory_msg.points = points;
+      typename state_type::trajectory_msg_t trajectory_msg;
+      //trajectory_msg.points = points;
       trajectory_msg.header = header;
+      
+      auto& points = trajectory_msg.points;
+      
+      //using state_msg_t = decltype(state_type::toMsg);
+      
+      //ni_trajectory::printTrajectory();
+      //std::vector<auto> points;
+      for(int i = 0; i < num_states(); ++i)
+      {
+        auto msg = x_vec[i].toMsg();
+        points.push_back(msg);
+      }
+      
       
       return trajectory_msg;
     }
     
-    //Not sure if this works; if it does, then the transforming function must not be
-    pips_trajectory_msgs::trajectory_pointsPtr toTrajectoryMsgPtr ()
-    {
-      pips_trajectory_msgs::trajectory_pointsPtr msgPtr(new pips_trajectory_msgs::trajectory_points);
-      msgPtr->points = ni_trajectory::toTrajectoryPointMsgs();
-      msgPtr->header = header;
-      
-      return msgPtr;
-    }
+//     //Not sure if this works; if it does, then the transforming function must not be
+//     pips_trajectory_msgs::trajectory_pointsPtr toTrajectoryMsgPtr ()
+//     {
+//       pips_trajectory_msgs::trajectory_pointsPtr msgPtr(new pips_trajectory_msgs::trajectory_points);
+//       msgPtr->points = ni_trajectory::toTrajectoryPointMsgs();
+//       msgPtr->header = header;
+//       
+//       return msgPtr;
+//     }
     
 
     
@@ -122,21 +114,32 @@ struct trajectory_states
       return path_msg;
     }
     
-    size_t trajectory_states::num_states()
+    size_t num_states()
     {
       return x_vec.size();
     }
-    void trajectory_states::setCollisionInd ( int i )
+    void setCollisionInd ( int i )
     {
       x_vec.resize(i);
+    }
+    
+    ros::Duration getDuration()
+    {
+      return ros::Duration(times[num_states()-1]);
+    }
+    
+    std_msgs::Header getHeader(int i)
+    {
+      std_msgs::Header t_header = header;
+      t_header.stamp += ros::Duration(times[i]);
+      return t_header;
     }
     
     geometry_msgs::Point getPoint(int i)
     {
       state_type state = x_vec[i];
       geometry_msgs::Point point;
-      point.x = state[near_identity::X_IND];
-      point.y = state[near_identity::Y_IND];
+      state.to(point);
       return point;
     }
     
@@ -151,8 +154,9 @@ struct trajectory_states
     
     geometry_msgs::Quaternion getQuaternion(int i)
     {
-      double theta = x_vec[i][near_identity::THETA_IND];
-      geometry_msgs::Quaternion quat = TrajectoryGeneratorBridge::yawToQuaternion(theta);//what I had here before seemed to work, but I would prefer to encapsulate all my conversions
+      state_type state = x_vec[i];
+      geometry_msgs::Quaternion quat;
+      state.to(quat);
       return quat;
     }
     
@@ -163,7 +167,7 @@ struct trajectory_states
       pose.orientation = getQuaternion(i);
       return pose;
     }
-    
+
     geometry_msgs::PoseStamped getPoseStamped(int i)
     {
       geometry_msgs::PoseStamped pose;
@@ -171,19 +175,6 @@ struct trajectory_states
       pose.header = getHeader(i);
       return pose;
     }
-    
-    std_msgs::Header getHeader(int i)
-    {
-      std_msgs::Header t_header = header;
-      t_header.stamp += ros::Duration(times[i]);
-      return t_header;
-    }
-    
-    ros::Duration getDuration()
-    {
-      return ros::Duration(times[num_states()-1]);
-    }*/
-    
     
 };
 

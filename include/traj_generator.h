@@ -14,6 +14,11 @@
 
 #include <boost/numeric/odeint.hpp>
 
+// #include <geometry_msgs/Pose.h>
+// #include <geometry_msgs/Point.h>
+// #include <geometry_msgs/Quaternion.h>
+// #include <geometry_msgs/Twist.h>
+
 //[ rhs_function
 /* The type of container used to hold the state vector */
 //typedef std::vector< double > state_type;
@@ -65,6 +70,30 @@ public:
   {
     return static_cast<T*>(this)->checkState();
   }
+
+/*  
+  template<>
+  void to<geometry_msgs::Point>()
+  {
+    geometry_msgs::Pose = static_cast<T*>(this)->to<geometry_msgs::Pose>(obj) 
+    return pose.position;
+  }
+  
+  template<>
+  void to<geometry_msgs::Quaternion>()
+  {
+    geometry_msgs::Pose = static_cast<T*>(this)->to<geometry_msgs::Pose>(obj) 
+    return pose.orientation;
+  }
+  
+  template<>
+  void to<geometry_msgs::Twist>()
+  {
+    geometry_msgs::Pose = static_cast<T*>(this)->to<geometry_msgs::Pose>(obj) 
+    return pose.orientation;
+  }
+  */
+  
   
   
 };
