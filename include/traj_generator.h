@@ -150,13 +150,13 @@ private:
   }
   
   template <typename F>
-  size_t run(traj_func<F, state_type>& func, state_type &x0, std::vector<state_type> &x_vec, std::vector<double> &times)
+  size_t run(F& func, state_type &x0, std::vector<state_type> &x_vec, std::vector<double> &times)
   {
     return traj_generator::run(func, x0, x_vec, times, default_params_);
   }
   
   template <typename F>
-  size_t run(traj_func<F, state_type>& func, state_type &x0, std::vector<state_type> &x_vec, std::vector<double> &times, traj_params& params)
+  size_t run(F& func, state_type &x0, std::vector<state_type> &x_vec, std::vector<double> &times, traj_params& params)
   {
     using namespace boost::numeric::odeint;
     
