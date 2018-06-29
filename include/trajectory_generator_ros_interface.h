@@ -66,6 +66,7 @@ struct trajectory_states
       for(int i = 0; i < num_states(); ++i)
       {
         auto msg = x_vec[i].toMsg();
+        msg.time = ros::Duration(times[i]);
         points.push_back(msg);
       }
       
