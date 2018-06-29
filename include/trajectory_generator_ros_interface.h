@@ -177,6 +177,7 @@ struct trajectory_states
       return pose;
     }
     
+    //typedef std::shared_ptr< ::ni_controller> Ptr;
 };
 
 
