@@ -21,7 +21,7 @@
 
 
 
-// A* Functor
+// A Functor
 template <typename T>
 class ElementReference
 {
@@ -50,6 +50,49 @@ class ElementReference
     
 };
 
+
+template <typename T>
+class VectorReference
+{
+private:
+  T& vector_;
+  typedef typename T::value_type S;
+  int ind_;
+  
+public:
+  VectorReference(T& vector, int ind) : vector_(vector), ind_(ind) {  }
+  
+  // This operator overloading enables calling
+  // operator function () on objects of increment
+  operator S& ()
+  {
+    return vector_[ind_];
+  }
+  
+  operator const S&() const
+  {
+    return vector_[ind_];
+  }
+  
+//   operator S () const
+//   {
+//     return vector_[ind_];
+//   }
+  
+};
+
+template<typename T>
+std::ostream& operator<<(std::ostream& os, const VectorReference<T>& obj)
+{
+  typedef typename T::value_type S;
+  
+  os << (S)obj;
+  
+  // write obj to stream
+  return os;
+}
+
+
 template<typename T, size_t N>
 class TrajectoryState
 {
@@ -77,6 +120,10 @@ public:
   inline double& operator[] (size_t n)  { return (data[n]); }
   
   TrajectoryState() : data(N)
+  {
+  }
+  
+  TrajectoryState(const TrajectoryState& state) : data(state.data)
   {
   }
   
