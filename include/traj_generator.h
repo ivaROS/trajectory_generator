@@ -19,10 +19,30 @@
 // #include <geometry_msgs/Quaternion.h>
 // #include <geometry_msgs/Twist.h>
 
-//[ rhs_function
-/* The type of container used to hold the state vector */
-//typedef std::vector< double > state_type;
 
+
+// A* Functor
+template <typename T>
+class ElementReference
+{
+  private:
+    T& element_;
+   
+  public:
+    ElementReference(T& element) : element_(element) {  }
+    
+    // This operator overloading enables calling
+    // operator function () on objects of increment
+    operator T& ()
+    {
+      return element_;
+    }
+    
+    operator const T&() const
+    {
+      return element_;
+    }
+};
 
 template<typename T, size_t N>
 class TrajectoryState
@@ -97,21 +117,7 @@ public:
   
   
 };
-/*
-// A Functor
-class increment
-{
-private:
-  int num;
-public:
-  increment(int n) : num(n) {  }
-  
-  // This operator overloading enables calling
-  // operator function () on objects of increment
-  int operator () (int arr_num) const {
-    return num + arr_num;
-  }
-};*/
+
 
 
 //[ rhs_class
