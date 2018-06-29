@@ -42,6 +42,12 @@ class ElementReference
     {
       return element_;
     }
+    
+    operator T () const
+    {
+      return element_;
+    }
+    
 };
 
 template<typename T, size_t N>
