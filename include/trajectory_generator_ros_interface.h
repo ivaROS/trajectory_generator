@@ -115,10 +115,11 @@ struct trajectory_states
       return path_msg;
     }
     
-    size_t num_states()
+    virtual size_t num_states()
     {
       return x_vec.size();
     }
+    
     void setCollisionInd ( int i )
     {
       x_vec.resize(i);
