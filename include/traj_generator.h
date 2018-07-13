@@ -62,6 +62,8 @@ private:
 public:
   VectorReference(T& vector, int ind) : vector_(vector), ind_(ind) {  }
   
+  VectorReference(const VectorReference<T>& other) : vector_(other.vector_), ind_(other.ind_) {  }
+  
   // This operator overloading enables calling
   // operator function () on objects of increment
   operator S& ()
@@ -74,6 +76,17 @@ public:
     return vector_[ind_];
   }
   
+  VectorReference<T>& operator= (const S& other)
+  {
+    vector_[ind_] = other;
+    return *this; // Apparently it should return itself: https://en.wikipedia.org/wiki/Assignment_operator_(C%2B%2B)
+  }
+/*
+  void operator= (const S& other)
+  {
+    vector_[ind_] = other;
+  }
+  */
 //   operator S () const
 //   {
 //     return vector_[ind_];
@@ -137,6 +150,12 @@ public:
   void from(const S& obj)
   {
     return static_cast<T*>(this)->from<S>(obj);
+  }
+  
+  template<typename S>
+  void operator=(const S& obj)
+  {
+    from(obj);
   }
   
   bool checkState()
@@ -260,7 +279,7 @@ private:
   {
     using namespace boost::numeric::odeint;
     
-    size_t steps;
+    size_t steps=0;
     
     x_vec.clear();
     times.clear();

@@ -63,7 +63,7 @@ struct trajectory_states
       
       //ni_trajectory::printTrajectory();
       //std::vector<auto> points;
-      for(int i = 0; i < num_states(); ++i)
+      for(unsigned int i = 0; i < num_states(); ++i)
       {
         auto msg = x_vec[i].toMsg();
         msg.time = ros::Duration(times[i]);
@@ -199,24 +199,28 @@ public:
   {
   }
   
-  void generate_trajectory(trajectory_ptr trajectory) //Can this be passed by reference safely?
+  size_t generate_trajectory(trajectory_ptr trajectory) //Can this be passed by reference safely?
   {   
     //How long does the integration take? Get current time
     auto t1 = std::chrono::high_resolution_clock::now();
     
+    size_t steps = 0;
+    
     if(trajectory->params == NULL)
     {
-      trajectory_gen_.run(*trajectory->trajpntr, trajectory->x0_, trajectory->x_vec, trajectory->times);
+      steps = trajectory_gen_.run(*trajectory->trajpntr, trajectory->x0_, trajectory->x_vec, trajectory->times);
     }
     else
     {
-      trajectory_gen_.run(*trajectory->trajpntr, trajectory->x0_, trajectory->x_vec, trajectory->times, *trajectory->params);
+      steps = trajectory_gen_.run(*trajectory->trajpntr, trajectory->x0_, trajectory->x_vec, trajectory->times, *trajectory->params);
     }
     
     auto t2 = std::chrono::high_resolution_clock::now();
     std::chrono::duration<double, std::milli> fp_ms = t2 - t1;
     
     ROS_DEBUG_STREAM_NAMED(name_, "Integration took " << fp_ms.count() << " ms\n");
+    
+    return steps;
   }
 
   //Parameter related functions, possibly unnecessary
@@ -279,7 +283,8 @@ public:
     return longest_traj;
   }
 
-  static trajectory_ptr getCenterLongestTrajectory(const std::vector<trajectory_ptr>& valid_trajs)
+  template<typename T>
+  static trajectory_ptr getCenterLongestTrajectory(const std::vector<T>& valid_trajs)
   {
     std::vector<trajectory_ptr> longest_trajs;
     
@@ -306,7 +311,8 @@ public:
 
   
   /* My custom rviz display removes much of the original purpose of this. Another issue is having pointers to pips_trajectories */
-  static void publishPaths(const ros::Publisher& pub, const std::vector<trajectory_ptr>& trajs)
+  template<typename T>
+  static void publishPaths(const ros::Publisher& pub, const std::vector<T>& trajs)
   {
     if(pub.getNumSubscribers() > 0)
     {
@@ -324,7 +330,8 @@ public:
     
   }
   
-  static void publishDesiredPaths(const ros::Publisher& pub, const std::vector<trajectory_ptr>& trajs)
+  template<typename T>
+  static void publishDesiredPaths(const ros::Publisher& pub, const std::vector<T>& trajs)
   {
     if(pub.getNumSubscribers() > 0)
     {
