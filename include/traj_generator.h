@@ -7,18 +7,11 @@
  copy at http://www.boost.org/LICENSE_1_0.txt)
  */
 
-#ifndef TRAJ_GENERATOR_H
-#define TRAJ_GENERATOR_H
+#ifndef TRAJECTORY_GENERATOR_TRAJ_GENERATOR_H
+#define TRAJECTORY_GENERATOR_TRAJ_GENERATOR_H
 
 #include <vector>
-
 #include <boost/numeric/odeint.hpp>
-
-// #include <geometry_msgs/Pose.h>
-// #include <geometry_msgs/Point.h>
-// #include <geometry_msgs/Quaternion.h>
-// #include <geometry_msgs/Twist.h>
-
 
 
 // A Functor
@@ -29,10 +22,8 @@ class ElementReference
     T& element_;
    
   public:
-    ElementReference(T& element) : element_(element) {  }
+    ElementReference(T& element) : element_(element) {}
     
-    // This operator overloading enables calling
-    // operator function () on objects of increment
     operator T& ()
     {
       return element_;
@@ -47,63 +38,7 @@ class ElementReference
     {
       return element_;
     }
-    
 };
-
-
-template <typename T>
-class VectorReference
-{
-private:
-  T& vector_;
-  typedef typename T::value_type S;
-  int ind_;
-  
-public:
-  VectorReference(T& vector, int ind) : vector_(vector), ind_(ind) {  }
-  
-  VectorReference(const VectorReference<T>& other) : vector_(other.vector_), ind_(other.ind_) {  }
-  
-  // This operator overloading enables calling
-  // operator function () on objects of increment
-  operator S& ()
-  {
-    return vector_[ind_];
-  }
-  
-  operator const S&() const
-  {
-    return vector_[ind_];
-  }
-  
-  VectorReference<T>& operator= (const S& other)
-  {
-    vector_[ind_] = other;
-    return *this; // Apparently it should return itself: https://en.wikipedia.org/wiki/Assignment_operator_(C%2B%2B)
-  }
-/*
-  void operator= (const S& other)
-  {
-    vector_[ind_] = other;
-  }
-  */
-//   operator S () const
-//   {
-//     return vector_[ind_];
-//   }
-  
-};
-
-template<typename T>
-std::ostream& operator<<(std::ostream& os, const VectorReference<T>& obj)
-{
-  typedef typename T::value_type S;
-  
-  os << (S)obj;
-  
-  // write obj to stream
-  return os;
-}
 
 
 template<typename T, size_t N>
@@ -115,13 +50,9 @@ protected:
   array data;
   
 public:
-  
   typedef typename array::value_type value_type;
-  
   typedef typename array::iterator iterator;
   typedef typename array::const_iterator const_iterator;
-  
-  
   
   iterator begin() {return data.begin();}
   iterator end() {return data.end();}
@@ -132,13 +63,9 @@ public:
   inline const double& operator[] (size_t n) const { return (data[n]); }
   inline double& operator[] (size_t n)  { return (data[n]); }
   
-  TrajectoryState() : data(N)
-  {
-  }
+  TrajectoryState() : data(N) {}
   
-  TrajectoryState(const TrajectoryState& state) : data(state.data)
-  {
-  }
+  TrajectoryState(const TrajectoryState& state) : data(state.data) {}
   
   template<typename S>
   void to(S& obj)
@@ -162,31 +89,6 @@ public:
   {
     return static_cast<T*>(this)->checkState();
   }
-
-/*  
-  template<>
-  void to<geometry_msgs::Point>()
-  {
-    geometry_msgs::Pose = static_cast<T*>(this)->to<geometry_msgs::Pose>(obj) 
-    return pose.position;
-  }
-  
-  template<>
-  void to<geometry_msgs::Quaternion>()
-  {
-    geometry_msgs::Pose = static_cast<T*>(this)->to<geometry_msgs::Pose>(obj) 
-    return pose.orientation;
-  }
-  
-  template<>
-  void to<geometry_msgs::Twist>()
-  {
-    geometry_msgs::Pose = static_cast<T*>(this)->to<geometry_msgs::Pose>(obj) 
-    return pose.orientation;
-  }
-  */
-  
-  
   
 };
 
@@ -195,36 +97,32 @@ public:
 //[ rhs_class
 /* The rhs of x' = f(x) defined as a class */
 template<typename T, typename state_type>
-class traj_func {
-
+class traj_func 
+{
 public:
     
   void operator() ( const state_type &x , state_type &dxdt , const double  t  )
   {
     static_cast<T*>(this)->operator_impl(x, dxdt, t);
   }
-    
-
 };
 //]
 
 
-
-
-
-
-
-
-
-struct traj_params {
-
-public:
+struct traj_params 
+{
     double tf=5,t0=0,dt=.1,abs_err=1.0e-10,rel_err=1.0e-6,a_x=1.0,a_dxdt=1.0;
-    
-    };
+};
 
-    
-    
+
+/*
+ Copyright 2010-2012 Karsten Ahnert
+ Copyright 2011-2013 Mario Mulansky
+ Copyright 2013 Pascal Germroth
+ Distributed under the Boost Software License, Version 1.0.
+ (See accompanying file LICENSE_1_0.txt or
+ copy at http://www.boost.org/LICENSE_1_0.txt)
+ */
 //[ integrate_observer
 template <typename state_type>
 class push_back_state_and_time
@@ -243,22 +141,13 @@ public:
   }
 };
 
-template <typename state_type, typename F>
-class traj_generator {
 
-private:
+template <typename state_type, typename F>
+class traj_generator 
+{
+public:  
   
-  //ni_controller controller_;
-  
-  traj_params default_params_;
-  
-  public:
-  
-  
-  traj_generator()
-  {
-    
-  }
+  traj_generator() {}
   
   traj_params getDefaultParams()
   {
@@ -297,13 +186,11 @@ private:
     }
     
     return steps;
-    
-  }  
+  }
   
-
-
-
+private:
+  traj_params default_params_;
 };
 
 
-#endif  /* ! traj_generator.h seen */
+#endif  /* TRAJECTORY_GENERATOR_TRAJ_GENERATOR_H */

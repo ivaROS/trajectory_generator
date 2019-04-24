@@ -1,10 +1,7 @@
-#ifndef TRAJECTORY_GENERATOR_ROS_INTERFACE_H
-#define TRAJECTORY_GENERATOR_ROS_INTERFACE_H
+#ifndef TRAJECTORY_GENERATOR_TRAJECTORY_GENERATOR_ROS_INTERFACE_H
+#define TRAJECTORY_GENERATOR_TRAJECTORY_GENERATOR_ROS_INTERFACE_H
 
 #include "traj_generator.h"
-#include <chrono>
-#include <pips_trajectory_msgs/trajectory_point.h>
-#include <pips_trajectory_msgs/trajectory_points.h>
 #include <pips_msgs/PathArray.h>
 #include <ros/ros.h>
 #include <nav_msgs/Odometry.h>
@@ -18,8 +15,6 @@
 #include <tf/transform_datatypes.h>
 
 #include <iostream>
-
-
 
 
 
@@ -43,13 +38,9 @@ struct trajectory_states
     traj_func_ptr trajpntr;
     traj_params_ptr params;
     
-    trajectory_states()
-    {
+    trajectory_states() {}
     
-    }
-
-    trajectory_states( std::vector< state_type > states , std::vector< double > t ) : x_vec( states ) , times( t ) { }
-
+    trajectory_states( std::vector< state_type > states , std::vector< double > t ) : x_vec( states ) , times( t ) {}
     
     typename state_type::trajectory_msg_t toMsg() //-> decltype(typename state_type::trajectory_msg_t)
     {
@@ -70,21 +61,8 @@ struct trajectory_states
         points.push_back(msg);
       }
       
-      
       return trajectory_msg;
     }
-    
-//     //Not sure if this works; if it does, then the transforming function must not be
-//     pips_trajectory_msgs::trajectory_pointsPtr toTrajectoryMsgPtr ()
-//     {
-//       pips_trajectory_msgs::trajectory_pointsPtr msgPtr(new pips_trajectory_msgs::trajectory_points);
-//       msgPtr->points = ni_trajectory::toTrajectoryPointMsgs();
-//       msgPtr->header = header;
-//       
-//       return msgPtr;
-//     }
-    
-
     
     nav_msgs::PathPtr toPathMsg()
     {
@@ -353,5 +331,5 @@ public:
 
 };
 
-#endif
+#endif //TRAJECTORY_GENERATOR_TRAJECTORY_GENERATOR_ROS_INTERFACE_H
 
