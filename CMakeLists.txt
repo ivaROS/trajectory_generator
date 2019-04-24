@@ -25,7 +25,7 @@ find_package(Eigen3 REQUIRED)
 catkin_package(
   INCLUDE_DIRS include # ${EIGEN3_INCLUDE_DIR}  #Without the Eigen3 directories, the package doesn't compile properly with catkin build
 #   LIBRARIES 
-  CATKIN_DEPENDS roscpp std_msgs nav_msgs geometry_msgs tf
+  CATKIN_DEPENDS roscpp std_msgs nav_msgs geometry_msgs tf pips_msgs
   DEPENDS Boost EIGEN3
 )
 

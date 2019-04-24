@@ -289,7 +289,6 @@ public:
   }
 
   
-  /* My custom rviz display removes much of the original purpose of this. Another issue is having pointers to pips_trajectories */
   template<typename T>
   static void publishPaths(const ros::Publisher& pub, const std::vector<T>& trajs)
   {
