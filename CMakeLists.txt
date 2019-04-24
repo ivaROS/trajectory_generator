@@ -6,17 +6,10 @@ project(trajectory_generator)
 ## Find catkin macros and libraries
 ## if COMPONENTS list like find_package(catkin REQUIRED COMPONENTS xyz)
 ## is used, also find other catkin packages
-find_package(catkin REQUIRED COMPONENTS roscpp
-#                                         std_msgs
-#                                         nav_msgs                                              
-#                                         geometry_msgs
-#                                         tf
-                                        )
-
-
+find_package(catkin REQUIRED)
 
 ## System dependencies are found with CMake's conventions
-find_package(Boost REQUIRED COMPONENTS system)
+find_package(Boost REQUIRED)
 find_package(Eigen3 REQUIRED)
 
 
@@ -30,10 +23,10 @@ find_package(Eigen3 REQUIRED)
 ## CATKIN_DEPENDS: catkin_packages dependent projects also need
 ## DEPENDS: system dependencies of this project that dependent projects also need
 catkin_package(
-  INCLUDE_DIRS include ${EIGEN3_INCLUDE_DIR}  #Without the Eigen3 directories, the package doesn't compile properly with catkin build
+  INCLUDE_DIRS include # ${EIGEN3_INCLUDE_DIR}  #Without the Eigen3 directories, the package doesn't compile properly with catkin build
 #   LIBRARIES 
   CATKIN_DEPENDS roscpp std_msgs nav_msgs geometry_msgs tf
-#   DEPENDS system_lib
+  DEPENDS Boost EIGEN3
 )
 
 

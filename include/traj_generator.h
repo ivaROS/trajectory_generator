@@ -13,33 +13,35 @@
 #include <vector>
 #include <boost/numeric/odeint.hpp>
 
-
-// A Functor
 template <typename T>
-class ElementReference
+class VectorReference
 {
-  private:
-    T& element_;
-   
-  public:
-    ElementReference(T& element) : element_(element) {}
-    
-    operator T& ()
-    {
-      return element_;
-    }
-    
-    operator const T&() const
-    {
-      return element_;
-    }
-    
-    operator T () const
-    {
-      return element_;
-    }
+private:
+  T& vector_;
+  typedef typename T::value_type S;
+  int ind_;
+  
+public:
+  VectorReference(T& vector, int ind) : vector_(vector), ind_(ind) {}
+  
+  VectorReference(const VectorReference<T>& other) : vector_(other.vector_), ind_(other.ind_) {}
+  
+  operator S& ()
+  {
+    return vector_[ind_];
+  }
+  
+  operator const S&() const
+  {
+    return vector_[ind_];
+  }
+  
+  VectorReference<T>& operator= (const S& other)
+  {
+    vector_[ind_] = other;
+    return *this; // Apparently it should return itself: https://en.wikipedia.org/wiki/Assignment_operator_(C%2B%2B)
+  }
 };
-
 
 template<typename T, size_t N>
 class TrajectoryState
