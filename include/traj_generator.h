@@ -13,6 +13,9 @@
 #include <vector>
 #include <boost/numeric/odeint.hpp>
 
+namespace trajectory_generator
+{
+
 template <typename T>
 class VectorReference
 {
@@ -194,5 +197,6 @@ private:
   traj_params default_params_;
 };
 
+} //namespace trajectory_generator
 
 #endif  /* TRAJECTORY_GENERATOR_TRAJ_GENERATOR_H */

@@ -16,6 +16,8 @@
 #include <chrono>
 #include <iostream>
 
+namespace trajectory_generator 
+{
 
 
 typedef std::shared_ptr<traj_params> traj_params_ptr;
@@ -329,6 +331,8 @@ public:
 
 
 };
+
+} //namespace trajectory_generator
 
 #endif //TRAJECTORY_GENERATOR_TRAJECTORY_GENERATOR_ROS_INTERFACE_H
 
