@@ -49,7 +49,9 @@ public:
 template<typename T, size_t N>
 class TrajectoryState
 {
-  typedef std::vector<double> array;
+public:
+  //typedef std::vector<double> array;
+  typedef boost::array<double, N> array;
   
 protected:
   array data;
@@ -68,7 +70,7 @@ public:
   inline const double& operator[] (size_t n) const { return (data[n]); }
   inline double& operator[] (size_t n)  { return (data[n]); }
   
-  TrajectoryState() : data(N) {}
+  TrajectoryState() : data({}) {}
   
   TrajectoryState(const TrajectoryState& state) : data(state.data) {}
   
