@@ -100,6 +100,21 @@ public:
 };
 
 
+template<typename T>
+struct Desired
+{
+  T& data;
+  
+  Desired(T& data) :
+    data(data)
+  {}
+  
+  operator T&()
+  {
+    return data;
+  }
+};
+
 
 //[ rhs_class
 /* The rhs of x' = f(x) defined as a class */

@@ -88,7 +88,12 @@ struct trajectory_states
       
       for(size_t i=0; i < this->num_states(); i++)  // The desired path shouldn't be cropped by collision... yet graphically that looks terrible
       {
-        geometry_msgs::PoseStamped pose = getPoseStamped(i);
+        state_type state = x_vec[i];
+        geometry_msgs::PoseStamped pose;
+        auto pos = trajectory_generator::Desired<geometry_msgs::Point>(pose.pose.position);
+        state.to(pos);
+        
+        pose.header = getHeader(i);
         path_msg->poses.push_back(pose);
       }
       
