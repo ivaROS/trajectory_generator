@@ -186,8 +186,9 @@ public:
     return traj_generator::run(func, x0, x_vec, times, default_params_);
   }
   
-  size_t run(F& func, state_type &x0, std::vector<state_type> &x_vec, std::vector<double> &times, traj_params& params)
-  {
+  
+  static size_t run(F& func, state_type &x0, std::vector<state_type> &x_vec, std::vector<double> &times, traj_params& params)
+  { 
     using namespace boost::numeric::odeint;
     
     size_t steps=0;
@@ -206,7 +207,7 @@ public:
       //[ equidistant observer calls with adaptive internal step size:
       steps = integrate_const( controlled_stepper , func , x0 , params.t0, params.tf, params.dt, push_back_state_and_time<state_type>( x_vec , times ) );
     }
-    
+
     return steps;
   }
   
