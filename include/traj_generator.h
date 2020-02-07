@@ -75,13 +75,13 @@ public:
   template<typename S>
   void to(S& obj)
   {
-    return static_cast<T*>(this)->to<S>(obj);
+    return static_cast<T*>(this)->template to< S >(obj);
   }
   
   template<typename S>
   void from(const S& obj)
   {
-    return static_cast<T*>(this)->from<S>(obj);
+    return static_cast<T*>(this)->template from< S >(obj);
   }
   
   template<typename S>
