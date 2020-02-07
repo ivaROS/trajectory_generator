@@ -88,7 +88,12 @@ struct trajectory_states
       
       for(size_t i=0; i < this->num_states(); i++)  // The desired path shouldn't be cropped by collision... yet graphically that looks terrible
       {
-        geometry_msgs::PoseStamped pose = getPoseStamped(i);
+        state_type state = x_vec[i];
+        geometry_msgs::PoseStamped pose;
+        auto pos = trajectory_generator::Desired<geometry_msgs::Point>(pose.pose.position);
+        state.to(pos);
+        
+        pose.header = getHeader(i);
         path_msg->poses.push_back(pose);
       }
       
@@ -247,10 +252,11 @@ public:
     return yaw;
   }
   
-  static trajectory_ptr getLongestTrajectory(const std::vector<trajectory_ptr>& valid_trajs)
+  template<typename T>
+  static T getLongestTrajectory(const std::vector<T>& valid_trajs)
   {
     ros::Duration longest_length;
-    trajectory_ptr longest_traj;
+    T longest_traj;
     for(size_t i=0; i < valid_trajs.size(); i++)
     {
       ros::Duration length = valid_trajs[i]->getDuration();
@@ -265,9 +271,9 @@ public:
   }
 
   template<typename T>
-  static trajectory_ptr getCenterLongestTrajectory(const std::vector<T>& valid_trajs)
+  static T getCenterLongestTrajectory(const std::vector<T>& valid_trajs)
   {
-    std::vector<trajectory_ptr> longest_trajs;
+    std::vector<T> longest_trajs;
     
     ros::Duration longest_length;
     for(size_t i=0; i < valid_trajs.size(); i++)
@@ -285,7 +291,7 @@ public:
       }
     }
     
-    trajectory_ptr longest_traj = longest_trajs[longest_trajs.size()/2];
+    T longest_traj = longest_trajs[longest_trajs.size()/2];
     
     return longest_traj;
   }
