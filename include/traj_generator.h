@@ -39,11 +39,25 @@ public:
     return vector_[ind_];
   }
   
+  VectorReference<T>& operator= (const VectorReference<T> other)
+  {
+    vector_[ind_] = (const S&)other;
+    return *this; // Apparently it should return itself: https://en.wikipedia.org/wiki/Assignment_operator_(C%2B%2B)
+  }
+  
   VectorReference<T>& operator= (const S& other)
   {
     vector_[ind_] = other;
     return *this; // Apparently it should return itself: https://en.wikipedia.org/wiki/Assignment_operator_(C%2B%2B)
   }
+};
+
+template <typename T>
+struct trajectory_traits
+{
+  //typedef pips_trajectory_msgs::trajectory_points trajectory_msg_t;  
+  //typedef decltype(T::trajectory_msg_t) trajectory_msg_t; 
+  using trajectory_msg_t = typename T::trajectory_msg_t;
 };
 
 template<typename T, size_t N>
@@ -110,6 +124,11 @@ struct Desired
   {}
   
   operator T&()
+  {
+    return data;
+  }
+  
+  operator const T&() const
   {
     return data;
   }
@@ -213,6 +232,83 @@ public:
   
 private:
   traj_params default_params_;
+};
+
+
+//Alternative API using abstract interfaces to allow different trajectory generation approaches to be utilized so long as their outputs are of the same type
+
+// Highest level of abstraction; only common properties at this level are the trajectory generator parameters
+class TrajectoryGeneratorAbstractObject
+{
+public:
+  virtual int run()=0;
+  
+  TrajectoryGeneratorAbstractObject() {}
+  TrajectoryGeneratorAbstractObject(traj_params params): params(params) {}
+  
+  traj_params params;
+};
+
+// Probably temporary, or might modify trajectory states class to utilize it
+template <typename T>
+struct traj_result
+{
+  traj_result(int size=0)
+  {
+    x_vec.reserve(size);
+    times.reserve(size);
+  }
+  std::vector<T> x_vec;
+  std::vector<double> times;
+};
+
+// Next level of abstraction; templated on state type. Code that only interacts with the initial state or with the raw result of trajectory generation should use this level of abstraction
+template <typename T>
+class TypedTrajectoryGeneratorObject : public TrajectoryGeneratorAbstractObject
+{
+public:
+  using StateType = T;
+  
+  TypedTrajectoryGeneratorObject() {}
+  TypedTrajectoryGeneratorObject(T x0, traj_params params) :
+    TrajectoryGeneratorAbstractObject(params),
+    x0(x0),
+    result(params.tf/params.dt+1)
+  {}
+  
+  StateType x0;
+  traj_result<StateType> result;
+  typedef std::shared_ptr<TypedTrajectoryGeneratorObject<StateType> > Ptr;
+};
+  
+template <typename T, typename F>
+class FuncTypedTrajectoryGeneratorObject : public TypedTrajectoryGeneratorObject<T>
+{
+public:
+  using FuncType = F;
+  using TrajectoryGenerator = trajectory_generator::traj_generator<T, FuncType>;
+  using TypedTrajectoryGeneratorObject<T>::x0;
+  using TypedTrajectoryGeneratorObject<T>::result;
+  using TrajectoryGeneratorAbstractObject::params;
+  
+  FuncTypedTrajectoryGeneratorObject() {}
+  FuncTypedTrajectoryGeneratorObject(T x0, traj_params params) :
+    TypedTrajectoryGeneratorObject<T>(x0, params)
+  {}
+  
+  FuncTypedTrajectoryGeneratorObject(F f, T x0, traj_params params) :
+    TypedTrajectoryGeneratorObject<T>(x0, params),
+    func(f)
+  {}
+  
+  FuncTypedTrajectoryGeneratorObject(F f) : func(f) {}
+  
+  virtual int run()
+  {
+    return TrajectoryGenerator::run(func, x0, result.x_vec, result.times, params);
+  }
+  
+  F func;
 };
 
 } //namespace trajectory_generator

@@ -19,14 +19,46 @@
 namespace trajectory_generator 
 {
 
+//   template <typename T>
+//   class TrajectoryGeneratorAbstractMsgObject
+//   {
+//   public:
+//     using MsgType = M;
+//     typedef std::shared_ptr<TrajectoryGeneratorAbstractMsgObject<MsgType> > Ptr;
+//   };
+//   
+//   public TrajectoryGeneratorAbstractMsgObject<typename trajectory_traits<T>::trajectory_msg_t>
+//     class TypedTrajectoryGeneratorObject : public TrajectoryGeneratorAbstractObject*/
+//     
 
 typedef std::shared_ptr<traj_params> traj_params_ptr;
 
+template <typename M>
+struct abstract_trajectory_states
+{
+  virtual M toMsg()=0;
+  virtual nav_msgs::PathPtr toPathMsg()=0;
+  virtual nav_msgs::PathPtr getDesiredPathMsg()=0;
+  virtual size_t num_states()=0;
+  virtual void setCollisionInd ( int i )=0;
+  virtual ros::Duration getDuration()=0;
+  virtual std_msgs::Header getHeader(int i)=0;
+  virtual geometry_msgs::Point getPoint(int i)=0;
+  virtual geometry_msgs::PointStamped getPointStamped(int i)=0;
+  virtual geometry_msgs::Quaternion getQuaternion(int i)=0;
+  virtual geometry_msgs::Pose getPose(int i)=0;
+  virtual geometry_msgs::PoseStamped getPoseStamped(int i)=0;
+};
+
+
+
 template <typename state_type, typename traj_func_type>
-struct trajectory_states
+struct trajectory_states : public abstract_trajectory_states<typename trajectory_traits<state_type>::trajectory_msg_t >
 {
     //using msg_state_type = typename state_type::msg_state_type;
 
+    using trajectory_msg_t = typename trajectory_traits<state_type>::trajectory_msg_t;
+  
     typedef std::shared_ptr<traj_func_type> traj_func_ptr;
     
     typedef std::shared_ptr<trajectory_states<state_type, traj_func_type>  > trajectory_ptr;
@@ -44,9 +76,9 @@ struct trajectory_states
     
     trajectory_states( std::vector< state_type > states , std::vector< double > t ) : x_vec( states ) , times( t ) {}
     
-    typename state_type::trajectory_msg_t toMsg() //-> decltype(typename state_type::trajectory_msg_t)
+    trajectory_msg_t toMsg() //-> decltype(typename state_type::trajectory_msg_t)
     {
-      typename state_type::trajectory_msg_t trajectory_msg;
+      trajectory_msg_t trajectory_msg;
       //trajectory_msg.points = points;
       trajectory_msg.header = header;
       
