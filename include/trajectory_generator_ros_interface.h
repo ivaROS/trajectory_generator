@@ -50,12 +50,27 @@ struct abstract_trajectory_states
   virtual geometry_msgs::PoseStamped getPoseStamped(int i)=0;
 };
 
+template <typename T, typename = void>
+struct has_member : std::false_type{};
 
+template <typename T>
+struct has_member<T, decltype((void)T::points::value_type::time, void())> : std::true_type {};
+
+template <typename T>
+struct trajectory_msg_traits
+{
+  template<typename M>
+  static void setTrajectoryPointTime(M& msg, ros::Duration time)
+  {
+    msg.time = time;
+  }
+};
 
 template <typename state_type, typename traj_func_type>
 struct trajectory_states : public abstract_trajectory_states<typename trajectory_traits<state_type>::trajectory_msg_t >
 {
     //using msg_state_type = typename state_type::msg_state_type;
+    using Ptr = typename std::shared_ptr<trajectory_states<state_type, traj_func_type> >;
 
     using trajectory_msg_t = typename trajectory_traits<state_type>::trajectory_msg_t;
   
@@ -72,11 +87,15 @@ struct trajectory_states : public abstract_trajectory_states<typename trajectory
     traj_func_ptr trajpntr;
     traj_params_ptr params;
     
+    
+
+    
     trajectory_states() {}
     
     trajectory_states( std::vector< state_type > states , std::vector< double > t ) : x_vec( states ) , times( t ) {}
     
-    trajectory_msg_t toMsg() //-> decltype(typename state_type::trajectory_msg_t)
+//     typename std::enable_if<has_member<trajectory_msg_t>::value >
+    virtual trajectory_msg_t toMsg()
     {
       trajectory_msg_t trajectory_msg;
       //trajectory_msg.points = points;
@@ -91,12 +110,18 @@ struct trajectory_states : public abstract_trajectory_states<typename trajectory
       for(unsigned int i = 0; i < num_states(); ++i)
       {
         auto msg = x_vec[i].toMsg();
-        msg.time = ros::Duration(times[i]);
+        trajectory_msg_traits<trajectory_msg_t>::setTrajectoryPointTime(msg, ros::Duration(times[i]));
         points.push_back(msg);
       }
       
       return trajectory_msg;
     }
+    
+//     virtual trajectory_msg_t toMsg() //-> decltype(typename state_type::trajectory_msg_t)
+//     {
+//       //trajectory_msg_t msg;
+//       return toMsg<trajectory_msg_t>(msg);
+//     }
     
     nav_msgs::PathPtr toPathMsg()
     {
