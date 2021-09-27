@@ -18,12 +18,15 @@
 
 namespace trajectory_generator 
 {
-
+struct general_trajectory
+{
+    virtual bool hasDuration() = 0;
+};
 
 typedef std::shared_ptr<traj_params> traj_params_ptr;
 
 template <typename state_type, typename traj_func_type>
-struct trajectory_states
+struct trajectory_states : public general_trajectory
 {
     //using msg_state_type = typename state_type::msg_state_type;
 
@@ -43,6 +46,23 @@ struct trajectory_states
     trajectory_states() {}
     
     trajectory_states( std::vector< state_type > states , std::vector< double > t ) : x_vec( states ) , times( t ) {}
+    
+    bool hasDuration() 
+    {
+        return true;
+    }
+    
+    bool validTrajLength()
+    {
+        if(times.size() >= 2)
+        {
+            return true;
+        }
+        else
+        {
+            return false;
+        }
+    }
     
     typename state_type::trajectory_msg_t toMsg() //-> decltype(typename state_type::trajectory_msg_t)
     {
