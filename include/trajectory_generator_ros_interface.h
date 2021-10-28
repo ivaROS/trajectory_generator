@@ -48,6 +48,8 @@ struct abstract_trajectory_states
   virtual geometry_msgs::Quaternion getQuaternion(int i)=0;
   virtual geometry_msgs::Pose getPose(int i)=0;
   virtual geometry_msgs::PoseStamped getPoseStamped(int i)=0;
+  
+  using Ptr = typename std::shared_ptr<abstract_trajectory_states<M> >;
 };
 
 template <typename T, typename = void>
