@@ -75,6 +75,8 @@ public:
   typedef typename array::iterator iterator;
   typedef typename array::const_iterator const_iterator;
   
+  static constexpr size_t size() {return N;}
+  
   iterator begin() {return data.begin();}
   iterator end() {return data.end();}
   
@@ -106,9 +108,9 @@ public:
     from(obj);
   }
   
-  bool checkState()
+  bool checkState() const
   {
-    return static_cast<T*>(this)->checkState();
+    return static_cast<const T*>(this)->checkState();
   }
   
 };
